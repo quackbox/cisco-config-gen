@@ -12,7 +12,7 @@
             <div class="topbar">
                 <h1>Config Gen</h1>
             </div> 
-            <form action ="">
+            <form action = "#">
                 <div class ="Container">
                     <div class="System">
                         <h1> System Information </h1>
@@ -26,10 +26,10 @@
                         <input type="password" placeholder="Enter global router password" id="pw" name="pw">
     
                         <label for="pipv4">Primary IPv4 DNS Server</label>
-                        <input type="text" placeholder="Enter IPv4 DNS Server Address" id="pipv4" name="pipv4">
+                        <input type="text" class="ipv4" placeholder="Enter IPv4 DNS Server Address" id="pipv4" name="pipv4">
 
                         <label for="sipv4">Secondary IPv4 DNS Server</label>
-                        <input type="text" placeholder="Enter Secondary IPv4 DNS Server Address" id="sipv4" name="sipv4">
+                        <input type="text" class="ipv4" placeholder="Enter Secondary IPv4 DNS Server Address" id="sipv4" name="sipv4">
     
                         <label for="model">Choose a model:</label>
                         <select name="model" id="model">
@@ -50,7 +50,7 @@
                         <h1> Vlan Information </h1>
                         <hr>
                         <label for="v1ipv4">Vlan 1 IPv4 Interface</label>
-                        <input type="text" placeholder="Enter IPv4 Interface" id="v1ipv4" name="v1ipv4">
+                        <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v1ipv4" name="v1ipv4">
                         
                         <label for="v1ipPre">Choose a VLAN prefix:</label>
                         <select name="v1ipPre" id="v1ipPre">
@@ -75,7 +75,7 @@
                         <label for="dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
                         <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
                     </div>
-                        <button class="Button" id="gc"> Generate Config</button>
+                     <button class="Button" onclick="ValidateIPs()" id="gc"> Generate Config</button>
                 </div>
             </form>
         </div>
