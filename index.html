@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Config Gen</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="app.css">
+    </head>
+    <body>
+        <div class="topcontainer">
+            <div class="topbar">
+                <h1>Config Gen</h1>
+            </div> 
+            <form action ="">
+                <div class ="Container">
+                    <div class="System">
+                        <h1> System Information </h1>
+                        <hr>
+                        <label for="hn">Hostname</label>
+                        <input type="text" placeholder="Enter router hostname" id="hn" name="hn">
+                        <br>
+                        <br>
+    
+                        <label for="pw">Password</label>
+                        <input type="text" placeholder="Enter global router password" id="pw" name="pw">
+    
+                        <label for="pipv4">Primary IPv4 DNS Server</label>
+                        <input type="text" placeholder="Enter IPv4 DNS Server Address" id="pipv4" name="pipv4">
+
+                        <label for="sipv4">Secondary IPv4 DNS Server</label>
+                        <input type="text" placeholder="Enter Secondary IPv4 DNS Server Address" id="sipv4" name="sipv4">
+    
+                        <label for="model">Choose a model:</label>
+                        <select name="model" id="model">
+                        <option value="800Series">800 Series</option>
+                        <option value="1100Series">1100 Series</option>
+                        </select>
+
+                        
+                        <label for="WAN">Choose a WAN connection type:</label>
+                        <select name="WAN" id="WAN">
+                        <option value="IPoE">IPoE</option>
+                        <option value="PPPoE">PPPoE</option>
+                        <option value="Static IP">Static IP</option>
+                        </select>
+                    </div>
+    
+                    <div class="Vlan" id="vlan1">
+                        <h1> Vlan Information </h1>
+                        <hr>
+                        <label for="v1ipv4">Vlan 1 IPv4 Interface</label>
+                        <input type="text" placeholder="Enter IPv4 Interface" id="v1ipv4" name="v1ipv4">
+                        
+                        <label for="v1ipPre">Choose a VLAN prefix:</label>
+                        <select name="v1ipPre" id="v1ipPre">
+                        <option value="/31">/31</option>
+                        <option value="/30">/30</option>
+                        <option value="/29">/29</option>
+                        <option value="/28">/28</option>
+                        <option value="/27">/27</option>
+                        <option value="/26">/26</option>
+                        <option value="/25">/25</option>
+                        <option value="/24">/24</option>
+                        <option value="/23">/23</option>
+                        <option value="/22">/22</option>
+                        <option value="/21">/21</option>
+                        <option value="/20">/20</option>
+                        <option value="/19">/19</option>
+                        <option value="/18">/18</option>
+                        <option value="/17">/17</option>
+                        <option value="/16">/16</option>
+                        </select>
+
+                        <label for="dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
+                        <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
+                    </div>
+                        <button class="Button" id="gc"> Generate Config</button>
+                </div>
+            </form>
+        </div>
+        
+        <script src="script.js"></script>
+    </body>
+</html>
