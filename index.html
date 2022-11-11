@@ -9,8 +9,8 @@
     </head>
     <body>
         <div class = "sidebar" id = "sidebar">
-            <button type = button class = "sidebutton" id = "addvlan"> Add VLAN! </button>
-            <button type = button class = "hide sidebutton" id = "deletevlan"> Delete VLAN! </button>
+            <button type = button class = "sidebutton" id = "addvlan"> ADD vlan! </button>
+            <button type = button class = "hide sidebutton" id = "deletevlan"> DELETE vlan! </button>
         </div>
         <div class="topcontainer">
             <div class="topbar">
@@ -66,6 +66,13 @@
                     <div class="Vlan" id="vlan1">
                         <h1> Vlan Information </h1>
                         <hr>
+
+                        <label for="v1ID">Vlan 1 ID</label>
+                        <input type="text" class="vID text" placeholder="Enter VLAN ID" id="v1ID" name="v1ID">
+                        <div class="hide err"id="v1IDerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                         <label for="v1ipv4">Vlan 1 IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v1ipv4" name="v1ipv4">
                         <div class="hide err"id="v1ipv4err">
@@ -96,9 +103,17 @@
                         <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
                     </div>
 
+                    
                     <div class="hide" id="optionalvlan">
                         <h1> Vlan Information </h1>
                         <hr>
+
+                        <label for="v0ID">Vlan ID</label>
+                        <input type="text" class="vID text" placeholder="Enter VLAN ID" id="v0ID" name="v0ID">
+                        <div class="hide err"id="v0IDerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                         <label for="v0ipv4">Vlan IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v0ipv4" name="v0ipv4">
 
@@ -130,7 +145,7 @@
                         <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
                      </div>
 
-                     <button class="Button" type="button" onclick="ValidateIPs()" id="gc"> Generate Config</button>
+                     <button class="Button" type="button" onclick="ValidateIPs()" id="gc"> Generate Config </button>
                 </div>
             </form>
         </div>

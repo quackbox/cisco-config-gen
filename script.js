@@ -33,6 +33,7 @@ var lastHoveredElem;
 var counter = 1;
 
 sideBar.style.top = "120px";
+sideBar.style.right = "" +  (systemContainer.offsetLeft - 100) + "px";
 
 addVLANButton.addEventListener("click", addVLAN);
 deleteVLANButton.addEventListener("click", deleteVLAN);
@@ -107,6 +108,7 @@ function deleteVLAN(event)
 function sideBarAlignOnHover(event){
     lastHoveredElem = event.target;
     sideBar.style.top = "" + event.target.offsetTop +"px";
+    sideBar.style.right = "" +  (event.target.offsetLeft - 100) + "px";
 
     if (event.target.classList[1] == "optional")
     {
@@ -124,6 +126,7 @@ const errMsgs = [
         ipv4: "Must be a valid IP Address",
         text: "Must contain only alphanumeric characters, -, _ and be between " + minimum + " - " + maximum + " characters long with no spaces",
         password: "Must be between " + minimum + " - " + maximum + " characters long with no spaces",
+        vID: "Must be between or equal to 2 and 4095",
     }
 ]
 
@@ -190,10 +193,24 @@ function MarkFine(element, target){
 
 }
 
+function ValidateRange(number, minimum, maximum){
+    console.log(number);
+    var match = false;
+    if (!isNaN(number)){
+        console.log(number);
+        newnumber = parseInt(number);
+        if (newnumber >= minimum && newnumber <= maximum){
+            match = true;
+        }
+    }
+    return match;
+}
+
 function ValidateField(element){
     const IPRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     const textRegex = /^[a-zA-Z0-9_-]{4,15}$/;
     const passwordRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(+=._-]{4,15}$/g;
+    const IDregex = /^[2-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-4][0][0-9][0-4]$/
     // the 'type' is the first class in the class list (ipv4 or text)
     const type = element.target.classList[0];
 
@@ -202,7 +219,7 @@ function ValidateField(element){
     var err;
 
     if (type == "ipv4"){
-        regex = IPRegex
+        regex = IPRegex; //testing needs to be IP
         err = errMsgs[0].ipv4;
     }
     else if (type == "password"){
@@ -214,7 +231,14 @@ function ValidateField(element){
         err = errMsgs[0].text;
     }
 
-    match = regex.test(element.target.value);
+    if (type == "vID"){
+        match = ValidateRange(element.target.value, 2, 4095);
+        err = errMsgs[0].vID;
+    }
+    else{
+        match = regex.test(element.target.value);
+    }
+
 
     if (match==false){
         MarkError(element, true, err);

@@ -20,29 +20,42 @@ body {
     margin-left: auto;
     margin-right: auto;
     overflow:hidden;
+    /*background-image: url("flowerpattern.jpg");*/
 }
 
 .sidebar {
     background-color: white;
-    border-radius: 5px;
-    height: 100px;
-    width: 60px;
+    border-radius: 20px;
+    height: 110px;
+    width: 70px;
     z-index: 1;
-    right: 30px;
     margin: auto;
     position: absolute;
     offset-distance: 120;
-    text-align:center; /*buttons go off text align*/
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /*buttons go off text align*/
+    align-items: center;
+    transition: 0.2s;
 }
 
 .sidebutton{
     width:90%;
-    height:45%;
+    height:100%;
     padding:5%;
-    border-radius:5px;
-    background: rgb(255, 255, 255);
+    margin:5%;
+    border-radius:20px;
+    border-color:rgb(103, 80, 130);
+    color:white;
+    background: rgb(139, 109, 174);
+    font-weight: bold;
 }
 
+.sidebutton:hover{
+    cursor:pointer;
+    border: 4px solid rgb(96, 76, 118);
+    background-color:  rgb(121, 94, 152);
+}
 .Container {
     display:block;
     max-width:80%;
@@ -84,8 +97,9 @@ body {
 
 .Button {
     border-radius: 5px;
-    border-color:white;
-    background: rgb(255, 255, 255);
+    border-color:rgb(103, 80, 130);
+    color:white;
+    background: rgb(139, 109, 174);
     padding: 20px 10px;
     margin: 10px;
     width: 100%;
@@ -93,12 +107,13 @@ body {
     display: grid;
     justify-content: center;
     align-items: center;
+    font-weight: bold;
 }
 
 .Button:hover{
     cursor:pointer;
-    border: 4px solid rgb(158, 116, 166);
-    background-color: rgb(249, 244, 250);;
+    border: 4px solid rgb(96, 76, 118);
+    background-color:  rgb(121, 94, 152);
 }
 
 select {
