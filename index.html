@@ -18,15 +18,20 @@
                         <h1> System Information </h1>
                         <hr>
                         <label for="hn">Hostname</label>
-                        <input type="text" placeholder="Enter router hostname" id="hn" name="hn">
+                        <input type="text" class="text" placeholder="Enter router hostname" id="hn" name="hn">
                         <br>
                         <br>
     
                         <label for="pw">Password</label>
-                        <input type="password" placeholder="Enter global router password" id="pw" name="pw">
+                        <input type="password" class="password text" placeholder="Enter global router password" id="pw" name="pw">
     
                         <label for="pipv4">Primary IPv4 DNS Server</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 DNS Server Address" id="pipv4" name="pipv4">
+
+                        <div class="hide err"id="originalerr">
+                            <span> You got this wrong loooooool </span>
+                            <hr>
+                        </div>
 
                         <label for="sipv4">Secondary IPv4 DNS Server</label>
                         <input type="text" class="ipv4" placeholder="Enter Secondary IPv4 DNS Server Address" id="sipv4" name="sipv4">

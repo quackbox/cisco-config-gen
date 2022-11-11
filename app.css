@@ -31,6 +31,10 @@ body {
     margin-right: auto;
 }
 
+.hide {
+    display:none;
+}
+
 .System {
     background-color: rgb(253, 250, 255);
     border-radius: 5px;
