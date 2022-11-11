@@ -22,6 +22,27 @@ body {
     overflow:hidden;
 }
 
+.sidebar {
+    background-color: white;
+    border-radius: 5px;
+    height: 100px;
+    width: 60px;
+    z-index: 1;
+    right: 30px;
+    margin: auto;
+    position: absolute;
+    offset-distance: 120;
+    text-align:center; /*buttons go off text align*/
+}
+
+.sidebutton{
+    width:90%;
+    height:45%;
+    padding:5%;
+    border-radius:5px;
+    background: rgb(255, 255, 255);
+}
+
 .Container {
     display:block;
     max-width:80%;
@@ -31,9 +52,7 @@ body {
     margin-right: auto;
 }
 
-.hide {
-    display:none;
-}
+
 
 .System {
     background-color: rgb(253, 250, 255);
@@ -116,6 +135,19 @@ input[type="text"], input[type="checkbox"], input[type="password"] {
 
 input[type="text"]:hover, input[type="password"]:hover, select:hover {
     border: 1px solid rgb(158, 116, 166);
+}
+
+
+.err{
+    color: red;
+    font-size: small;
+    border: 0px;
+    /*top right bottom left*/
+    padding:10px 0 20px;
+}
+
+.hide {
+    display:none;
 }
 
 

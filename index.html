@@ -8,33 +8,45 @@
         <link rel="stylesheet" href="app.css">
     </head>
     <body>
+        <div class = "sidebar" id = "sidebar">
+            <button type = button class = "sidebutton" id = "addvlan"> Add VLAN! </button>
+            <button type = button class = "hide sidebutton" id = "deletevlan"> Delete VLAN! </button>
+        </div>
         <div class="topcontainer">
             <div class="topbar">
                 <h1>Config Gen</h1>
             </div> 
             <form action = "#">
                 <div class ="Container">
-                    <div class="System">
+                    <div class="System" id="System">
                         <h1> System Information </h1>
                         <hr>
                         <label for="hn">Hostname</label>
                         <input type="text" class="text" placeholder="Enter router hostname" id="hn" name="hn">
-                        <br>
-                        <br>
+                        <!-- Make sure the id for the error classes is the element it's for, + err (hostname = hnerr)-->
+                        <div class="hide err"id="hnerr">
+                            <!-- the error message is changed in the .js file-->
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
     
                         <label for="pw">Password</label>
                         <input type="password" class="password text" placeholder="Enter global router password" id="pw" name="pw">
+                        <div class="hide err"id="pwerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
     
                         <label for="pipv4">Primary IPv4 DNS Server</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 DNS Server Address" id="pipv4" name="pipv4">
 
-                        <div class="hide err"id="originalerr">
-                            <span> You got this wrong loooooool </span>
-                            <hr>
+                        <div class="hide err"id="pipv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
                         <label for="sipv4">Secondary IPv4 DNS Server</label>
                         <input type="text" class="ipv4" placeholder="Enter Secondary IPv4 DNS Server Address" id="sipv4" name="sipv4">
+                        <div class="hide err"id="sipv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
     
                         <label for="model">Choose a model:</label>
                         <select name="model" id="model">
@@ -50,13 +62,16 @@
                         <option value="Static IP">Static IP</option>
                         </select>
                     </div>
-    
+                    
                     <div class="Vlan" id="vlan1">
                         <h1> Vlan Information </h1>
                         <hr>
                         <label for="v1ipv4">Vlan 1 IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v1ipv4" name="v1ipv4">
-                        
+                        <div class="hide err"id="v1ipv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                         <label for="v1ipPre">Choose a VLAN prefix:</label>
                         <select name="v1ipPre" id="v1ipPre">
                         <option value="/31">/31</option>
@@ -80,7 +95,42 @@
                         <label for="dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
                         <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
                     </div>
-                     <button class="Button" onclick="ValidateIPs()" id="gc"> Generate Config</button>
+
+                    <div class="hide" id="optionalvlan">
+                        <h1> Vlan Information </h1>
+                        <hr>
+                        <label for="v0ipv4">Vlan IPv4 Interface</label>
+                        <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v0ipv4" name="v0ipv4">
+
+                        <div class="hide err"id="v0ipv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="v1ipPre">Choose a VLAN prefix:</label>
+                        <select name="v1ipPre" id="v1ipPre">
+                        <option value="/31">/31</option>
+                        <option value="/30">/30</option>
+                        <option value="/29">/29</option>
+                        <option value="/28">/28</option>
+                        <option value="/27">/27</option>
+                        <option value="/26">/26</option>
+                        <option value="/25">/25</option>
+                        <option value="/24">/24</option>
+                        <option value="/23">/23</option>
+                        <option value="/22">/22</option>
+                        <option value="/21">/21</option>
+                        <option value="/20">/20</option>
+                        <option value="/19">/19</option>
+                        <option value="/18">/18</option>
+                        <option value="/17">/17</option>
+                        <option value="/16">/16</option>
+                        </select>
+
+                        <label for="dhcpEN"> Enable DHCPv4 server on VLAN </label>
+                        <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
+                     </div>
+
+                     <button class="Button" type="button" onclick="ValidateIPs()" id="gc"> Generate Config</button>
                 </div>
             </form>
         </div>
