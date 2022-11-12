@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from flask_restful import Api, Resource, reqparse
+from ipaddress import IPv4Network
 import jinja2
 
 app = Flask(__name__)
@@ -20,18 +21,21 @@ def generate_config(values):
             if not vlan_id in vlans:
                 vlans[vlan_id] = {
                     "gateway": values["v{}ipv4".format(index[1:2])][0],
-                    "prefix": values["v{}ipPre".format(index[1:2])][0],
+                    "mask": IPv4Network("0.0.0.0" + values["v{}ipPre".format(index[1:2])][0]).netmask,
                     "native": True if index[1:2] == "1" else False,
                     "dhcpv4_enabled": True if "v{}dhcpEN".format(index[1:2]) in values else False,
+                    "id": vlan_id,
                 }
-
-    print(model)
 
     configs_loader = jinja2.FileSystemLoader(searchpath="./configs")
     template_env = jinja2.Environment(loader=configs_loader)
-    template = template_env.get_template(model + ".txt")
+    template = template_env.get_template(model + ".ios")
     output = template.render(
-        hostname = hostname
+        hostname = hostname,
+        primary_dns = primary_dns,
+        secondary_dns = secondary_dns,
+        password = password,
+        vlans = vlans
     )
     print(output)
 

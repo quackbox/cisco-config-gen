@@ -1,0 +1,219 @@
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime localtime show-timezone year
+service timestamps log datetime localtime show-timezone year
+service password-encryption
+service sequence-numbers
+service dhcp
+!
+hostname {{ hostname }}
+!
+logging buffered 51200 informational
+no logging console
+log config
+logging enable
+notify syslog contenttype plaintext
+hidekeys
+!
+aaa new-model
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+clock timezone <TZ_NAME> <HR> <MIN>
+!
+ntp server 1.au.pool.ntp.org
+ntp server 2.au.pool.ntp.org
+ntp server 3.au.pool.ntp.org
+!
+ip name-server {{ primary_dns }}
+ip name-server {{ secondary_dns }}
+ip domain name <DNS_SUFFIX>
+ip dns server
+!
+ipv6 unicast-routing
+ipv6 cef
+ip cef
+!
+lldp run
+cdp run
+!
+archive
+!
+username root privilege 15 secret {{ password }}
+!
+control-plane
+!
+banner motd ^C
+###########################################
+#                                         #
+#            !!! WARNING !!!              #
+#                                         #
+# Access to this device and the network   #
+# it protects is strictly prohibited      #
+# unless you are authorized.              #
+#                                         #
+# If you are unauthorized disconnect now! #
+#                                         #
+###########################################
+^C
+!
+no ip http server
+no ip http secure-server
+!
+crypto key generate rsa modulus 4096
+ip ssh time-out 60
+ip ssh version 2
+!
+policy-map PMAP-Speed-Child
+ class class-default
+  fair-queue
+  exit
+ exit
+policy-map PMAP-Speed-Parent
+ class class-default
+  shape average <UPLOAD BPS>
+   service-policy PMAP-Speed-Child
+  exit
+ exit
+!
+ip access-list extended ACL-INFRASTRUCTURE-IN
+ <bla bla>
+ exit
+ip access-list extended ACL-SSH-IN
+ permit tcp 192.168.0.0 0.0.0.255 any eq 22
+ permit tcp 172.16.0.0 0.15.255.255 any eq 22
+ permit tcp 10.0.0.0 0.255.255.255 any eq 22
+ permit tcp host <PUBLIC HOSTS> any eq 22
+ exit
+ip access-list extended ACL-NAT
+ permit ip 192.168.0.0 0.0.255.255 any
+ permit ip 172.16.0.0 0.15.255.255 any
+ permit ip 10.0.0.0 0.255.255.255 any
+ deny ip any any
+ exit
+!
+{% for vlan_id, vlan in vlans.items() -%}
+interface Vlan{{ vlan_id }}
+ ip address {{ vlan["gateway"] }} {{ vlan["mask"] }}
+ no ipv6 address
+ no ip proxy-arp
+ no ip redirects
+ ip virtual-reassembly in
+ ip nat inside
+ ip tcp adjust-mss 1300
+ exit
+{% endfor -%}
+!
+interface GigabitEthernet0/0/0
+ ip address dhcp
+ no ipv6 address
+ ip access-group ACL-INFRASTRUCTURE-IN in
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+ ip inspect FWv4 outside
+ ip virtual-reassembly in
+ ip tcp adjust-mss 1460
+ no cdp enable
+ no lldp transmit
+ speed auto
+ duplex auto
+ service-policy output PMAP-Speed-Parent
+ no shut
+ exit
+interface GigabitEthernet0/1/0
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+interface GigabitEthernet0/1/1
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+interface GigabitEthernet0/1/2
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+interface GigabitEthernet0/1/3
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+!
+line con 0
+ exec-timeout 30 0
+ transport preferred none
+ stopbits 1
+line vty 0 4
+ access-class ACL-SSH-IN in
+ login local
+ exec-timeout 30 0
+ privilege level 15
+ logging synchronous
+ transport input ssh
+!
+!
+ip route 0.0.0.0 0.0.0.0 dhcp 128
+!
+ip nat inside source list ACL-NAT interface GigabitEthernet0/0/0 overload
+!
+end

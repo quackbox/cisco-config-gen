@@ -180,6 +180,7 @@ function deleteVLAN(event){
         sideBar.style.top = "120px";
     }
 
+    calcValidationFields();
 }
 
 //aligns the sidebar on the element hovered (VLans and System containers)
