@@ -1,101 +1,117 @@
-
+// Xan's front-end config gen | created 10/11/2022
+// declaring constants, most of these are divs/containers or buttons to be referenced later
 const addVLANButton = document.getElementById("addvlan");
 const deleteVLANButton = document.getElementById("deletevlan");
 const systemContainer = document.getElementById("System");
 const firstVLAN = document.getElementById("vlan1");
 const sideBar = document.getElementById("sidebar");
-const minimum = 4;
+const minimum = 4; // used for regex validation
 const maximum = 15;
 
-var IPv4Collection = document.getElementsByClassName("ipv4");
-
-
-var TextCollection = document.getElementsByClassName("text");
-var newtable = Array.from(IPv4Collection);
-
-console.log(newtable);
-for (i=0;i<newtable.length;i++){
-    el = newtable[i];
-    console.log(el.parentNode);
-    if (el.parentNode.classList[0] == "hide")
+// table/object to hold the respective classes' error messages
+const errMsgs = [
     {
-        newtable.splice(i, 1)
+        ipv4: "Must be a valid IP Address",
+        text: "Must contain only alphanumeric characters, -, _ and be between " + minimum + " - " + maximum + " characters long with no spaces",
+        password: "Must be between " + minimum + " - " + maximum + " characters long with no spaces",
+        vID: "Must be between or equal to 2 and 4095",
     }
-    
-}
-console.log(newtable);
+]
 
-var textTable = Array.from(TextCollection);
-var allElements = newtable.concat(textTable);
-
+// declaring variables
+// most of these are used in the calcValidationFields function, to track what fields to validate
+var IPv4Collection;
+var TextCollection;
+var newtable;
+var textTable;
+var allElements; // will be the combination of newtable and texttable once they're filtered of hidden elements
 var vlanDuplicate = document.querySelector("#optionalvlan");
-var lastHoveredElem;
+var lastHoveredElem; // used for sideBar QoL purposes
 var counter = 1;
 
+// styling
 sideBar.style.top = "120px";
 sideBar.style.right = "" +  (systemContainer.offsetLeft - 100) + "px";
 
+// adding events
 addVLANButton.addEventListener("click", addVLAN);
 deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
 firstVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
 
-function addVLAN(){
-    //increasing the vlan counter, cloning it and remvoing the hide option
-    counter++
-    newVLAN = vlanDuplicate.cloneNode(true);
-    newVLAN.classList.remove("hide");
-    newVLAN.classList.add("Vlan");
-    newVLAN.classList.add("optional");
-
-    if (lastHoveredElem != systemContainer){
-        lastHoveredElem.after(newVLAN);
-    }
-    else{
-        firstVLAN.after(newVLAN);
-    }
-    
-    newVLAN.addEventListener("mouseenter", sideBarAlignOnHover)
-    newVLAN.id = "vlan"+counter;
-
-    // adding the VLAN to the validation collection
+// functions
+// calculates how many fields need to be validated (used for adding vlans and final validation)
+function calcValidationFields(){
     IPv4Collection = document.getElementsByClassName("ipv4");
     TextCollection = document.getElementsByClassName("text");
     newtable = Array.from(IPv4Collection);
     textTable = Array.from(TextCollection);
+
     for (i=0;i<newtable.length;i++){
         el = newtable[i];
-        console.log(el.parentNode);
         if (el.parentNode.classList[0] == "hide")
         {
             newtable.splice(i, 1)
         }
         
     }
+    for (i=0;i<textTable.length;i++){
+        el = textTable[i];
+        if (el.parentNode.classList[0] == "hide")
+        {
+            textTable.splice(i, 1)
+        }
+        
+    }
+
+    //adding it to all elements
+    allElements = newtable.concat(textTable);
+    console.log(allElements);
+
+    for (i=0; i<allElements.length; i++){
+        allElements[i].removeEventListener("blur", ValidateField);
+        allElements[i].addEventListener("blur", ValidateField);
+    }
+}
+
+// adds a VLAN, involves setting the ID's of erros and recalculating how many fields need to be validated
+function addVLAN(){
+    //increasing the vlan counter, cloning it and remvoing the hide option
+    counter++
+    newVLAN = vlanDuplicate.cloneNode(true);
+    newVLAN.id = "vlan"+counter;
+    newVLAN.classList.remove("hide");
+    newVLAN.classList.add("Vlan");
+    newVLAN.classList.add("optional"); //allows it to be deleted
 
     // changing the ID of the vlan so the err doesn't mess up
     const vlanIP = newVLAN.querySelector("#v0ipv4");
     const spanElement = newVLAN.querySelector("#v0ipv4err");
+    const vlanIDEntry =  newVLAN.querySelector("#v0ID");
+    const vlanIDerr = newVLAN.querySelector("#v0IDerr");
+
     vlanIP.id = "v"+counter+"ipv4";
     spanElement.id = vlanIP.id +"err";
+    vlanIDEntry.id = "v"+counter+"ID";
+    vlanIDerr.id = vlanIDEntry.id +"err";
 
-    //adding it to all elements
-    allElements = newtable.concat(textTable);
-    for (i=0; i<newtable.length; i++){
-        newtable[i].removeEventListener("blur", ValidateField);
-        newtable[i].addEventListener("blur", ValidateField);
+    newVLAN.addEventListener("mouseenter", sideBarAlignOnHover)
+
+    //need to insert it in the DOM before adding it to validation
+    if (lastHoveredElem != systemContainer){
+        lastHoveredElem.after(newVLAN);
     }
-    
-    for (i=0; i<textTable.length; i++){
-        textTable[i].removeEventListener("blur", ValidateField);
-        textTable[i].addEventListener("blur", ValidateField);
+    else{
+        firstVLAN.after(newVLAN);
     }
+
+    // adding the VLAN to the validation collection
+    calcValidationFields();
+
 }
 
-function deleteVLAN(event)
-{
+function deleteVLAN(event){
     var elem = lastHoveredElem
-    console.log(event.target.classList);
 
     if (elem.classList[1] == "optional")
     {
@@ -105,6 +121,7 @@ function deleteVLAN(event)
 
 }
 
+//aligns the sidebar on the element hovered (VLans and System containers)
 function sideBarAlignOnHover(event){
     lastHoveredElem = event.target;
     sideBar.style.top = "" + event.target.offsetTop +"px";
@@ -117,87 +134,51 @@ function sideBarAlignOnHover(event){
     else{
         deleteVLANButton.classList.add("hide");
     }
-    // event.target.style.backgroundColor = ""; works to change the background
 }
 
-// table/object to hold the respective classes' error messages
-const errMsgs = [
-    {
-        ipv4: "Must be a valid IP Address",
-        text: "Must contain only alphanumeric characters, -, _ and be between " + minimum + " - " + maximum + " characters long with no spaces",
-        password: "Must be between " + minimum + " - " + maximum + " characters long with no spaces",
-        vID: "Must be between or equal to 2 and 4095",
+// marks validation failed elements with an error
+function MarkError(element, err){
+    var newelement
+    //checks whether an event or element is being passed through
+    if (element.target != null){
+        //if it's an event, set the element to the target of that event
+        newelement = element.target;
     }
-]
+    else{
+        newelement = element;
+    }
 
-for (i=0; i<newtable.length; i++){
-    newtable[i].addEventListener("blur", ValidateField);
+    newelement.style.color = "red";
+    newelement.style.border = "2px solid red";
+    var errID = newelement.id;
+    var errDiv = document.getElementById(errID+"err")
+    var span = errDiv.getElementsByClassName("msg")[0];
+    span.innerText = err;
+    errDiv.classList.remove("hide");
 }
 
-for (i=0; i<textTable.length; i++){
-    textTable[i].addEventListener("blur", ValidateField);
+// unmarks
+function MarkFine(element){
+    var newelement
+    if (element.target != null){
+        newelement = element.target;
+    }
+    else{
+        newelement = element;
+    }
+
+    newelement.style.color = "black";
+    newelement.style.border = "none";
+    errID = newelement.id;
+    errDiv = document.getElementById(errID+"err");
+    errDiv.classList.add("hide");
 }
 
-
-
-// i didn't track events vs elements properly so gonna have to specify whether it's an event
-// or element upon using this function
-function MarkError(element, target, err){
-    
-    if (target == true){
-        element.target.style.color = "red";
-        element.target.style.border = "2px solid red";
-    
-        var errID = element.target.id;
-        console.log(element.target.id);
-        var errDiv = document.getElementById(errID+"err")
-        var span = errDiv.getElementsByClassName("msg")[0];
-        span.innerText = err;
-        errDiv.classList.remove("hide");
-        console.log(errDiv);
-    }
-    else
-    {
-        element.style.color = "red";
-        element.style.border = "2px solid red";
-        var errID = element.id;
-        console.log(element.id);
-        var errDiv = document.getElementById(errID+"err")
-        var span = errDiv.getElementsByClassName("msg")[0];
-        span.innerText = err;
-        errDiv.classList.remove("hide");
-        console.log(errDiv);
-    }
-}
-
-function MarkFine(element, target){
-
-    if (target == true)
-    {
-        element.target.style.color = "black";
-        element.target.style.border = "none";
-        errID = element.target.id;
-        console.log(element.target.id);
-        errDiv = document.getElementById(errID+"err");
-        errDiv.classList.add("hide");
-    }
-    else
-    {
-        element.style.color = "black";
-        element.style.border = "none";
-        errID = element.id;
-        console.log(element.id);
-        errDiv = document.getElementById(errID+"err");
-        errDiv.classList.add("hide");
-    }
-
-}
-
+// validates whether the input is a number, and between min and max
 function ValidateRange(number, minimum, maximum){
     console.log(number);
     var match = false;
     if (!isNaN(number)){
-        console.log(number);
         newnumber = parseInt(number);
         if (newnumber >= minimum && newnumber <= maximum){
             match = true;
@@ -206,17 +187,26 @@ function ValidateRange(number, minimum, maximum){
     return match;
 }
 
+// validates a field depending on its class or type (ipv4, text, password or vlanID)
 function ValidateField(element){
     const IPRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     const textRegex = /^[a-zA-Z0-9_-]{4,15}$/;
     const passwordRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(+=._-]{4,15}$/g;
     const IDregex = /^[2-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-4][0][0-9][0-4]$/
     // the 'type' is the first class in the class list (ipv4 or text)
-    const type = element.target.classList[0];
 
     var match = true;
     var regex; 
     var err;
+    var newelement;
+    if (element.target != null){
+        newelement = element.target;
+    }
+    else{
+        newelement = element;
+    }
+
+    const type = newelement.classList[0];
 
     if (type == "ipv4"){
         regex = IPRegex; //testing needs to be IP
@@ -232,59 +222,36 @@ function ValidateField(element){
     }
 
     if (type == "vID"){
-        match = ValidateRange(element.target.value, 2, 4095);
+        match = ValidateRange(newelement.value, 2, 4095);
         err = errMsgs[0].vID;
     }
     else{
-        match = regex.test(element.target.value);
+        match = regex.test(newelement.value);
     }
-
 
     if (match==false){
-        MarkError(element, true, err);
-        console.log(err);
-
+        MarkError(newelement, err);
     }
     else {
-        MarkFine(element, true)
+        MarkFine(newelement);
     }
+    return match;
 }
 
-function ValidateIPs(){
-    const IPRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    const textRegex = /^[a-zA-Z0-9_-]{4,15}$/;
-    const passwordRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(+=._-]{4,15}$/g;
+// validates all fields in the AllElements table
+function ValidateAll(){
     var ableToSubmit = true;
-    var regex;
-    var err;
 
     for (i=0; i<allElements.length; i++){
         const type = allElements[i].classList[0];
-
-        if (type == "ipv4"){
-            regex = IPRegex
-            err = errMsgs[0].ipv4;
-        }
-        else if (type == "password"){
-            regex = passwordRegex;
-            err = errMsgs[0].password;
-        }
-        else {
-            regex = textRegex;
-            err = errMsgs[0].text;
-        }
+        var match;8
+        match = ValidateField(allElements[i]);
         
-        const match = regex.test(allElements[i].value);
-
         if (match == false){
             ableToSubmit = false;
-            MarkError(allElements[i], false, err)
-        }
-        else{
-            MarkFine(allElements[i], false)
         }
     }
-
+ 
     if (ableToSubmit == true){
         console.log("can submit");
     }
@@ -292,5 +259,8 @@ function ValidateIPs(){
         console.log("cannot submit");
     }
 }
+
+// Functions to be run
+calcValidationFields();
 
 
