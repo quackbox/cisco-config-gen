@@ -43,19 +43,53 @@ firstVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
 
 form.addEventListener("submit", function(event){
     event.preventDefault();
-    const formData = new FormData(this);
-    // collecion of key value pairs which match the id and id value
-    fetch('http://127.0.0.1:5000/generate', {
-        method: 'post',
-        crossorigin: true,
-        body: formData
-    }).then (function(response){
-        return response.text;
-    }).then (function(text){
-        console.log(text);
-    }).catch(function(err){
-        console.error(err);
-    })
+
+    var validated = ValidateAll();
+    var newarray = [];
+    var i = 1;
+
+    if (validated == true){
+        const formData = new FormData(this);
+
+        for (const [key, value] of formData){
+            console.log([key, value]);
+            const regex = /^v0/;
+
+            if (regex.test(key) == true){
+                // formData.delete(key) causes holes? I think?
+                newarray[i] = key;
+                i++;
+            }
+        }
+
+        for (j=0;j<newarray.length;j++){
+            for (const [key, value] of formData){
+                if (newarray[j] == key){
+                    formData.delete(key);
+                }
+            }
+        }
+
+        console.log(formData)
+
+
+        // collecion of key value pairs which match the id and id value
+        fetch('http://127.0.0.1:5000/generate', {
+            method: 'post',
+            crossorigin: true,
+            body: formData
+        }).then (function(response){
+            return response.text;
+        }).then (function(text){
+            console.log(text);
+        }).catch(function(err){
+            console.error(err);
+        })
+    }
+    else{
+        console.log("there are errors");
+    }
+
 })
 
 // functions
@@ -108,11 +142,19 @@ function addVLAN(){
     const spanElement = newVLAN.querySelector("#v0ipv4err");
     const vlanIDEntry =  newVLAN.querySelector("#v0ID");
     const vlanIDerr = newVLAN.querySelector("#v0IDerr");
+    const vlanIPPre = newVLAN.querySelector("#v0ipPre");
+    const vlanDHCPen = newVLAN.querySelector("#v0dhcpEN");
 
     vlanIP.id = "v"+counter+"ipv4";
+    vlanIP.name = vlanIP.id;
     spanElement.id = vlanIP.id +"err";
     vlanIDEntry.id = "v"+counter+"ID";
+    vlanIDEntry.name = vlanIDEntry.id;
     vlanIDerr.id = vlanIDEntry.id +"err";
+    vlanIPPre.id = "v"+counter+"ipPre";
+    vlanIPPre.name = vlanIPPre.id;
+    vlanDHCPen.id = "v"+counter+"dhcpEN";
+    vlanDHCPen.name = vlanDHCPen.id;
 
     newVLAN.addEventListener("mouseenter", sideBarAlignOnHover)
 
@@ -263,20 +305,15 @@ function ValidateAll(){
 
     for (i=0; i<allElements.length; i++){
         const type = allElements[i].classList[0];
-        var match;8
+        var match;
         match = ValidateField(allElements[i]);
         
         if (match == false){
             ableToSubmit = false;
         }
     }
- 
-    if (ableToSubmit == true){
-        console.log("can submit");
-    }
-    else{
-        console.log("cannot submit");
-    }
+
+    return ableToSubmit;
 }
 
 // Functions to be run

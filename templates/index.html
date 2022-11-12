@@ -100,7 +100,7 @@
                         </select>
 
                         <label for="v1dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
-                        <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
+                        <input type="checkbox" name="v1dhcpEN" id ="v1dhcpEN" value="Enable DHCPv4">
                     </div>
 
                     
@@ -122,7 +122,7 @@
                         </div>
 
                         <label for="v0ipPre">Choose a VLAN prefix:</label>
-                        <select name="v1ipPre" id="v1ipPre">
+                        <select name="v0ipPre" id="v0ipPre">
                         <option value="/31">/31</option>
                         <option value="/30">/30</option>
                         <option value="/29">/29</option>
@@ -142,7 +142,7 @@
                         </select>
 
                         <label for="v0dhcpEN"> Enable DHCPv4 server on VLAN </label>
-                        <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
+                        <input type="checkbox" name="v0dhcpEN" id = "v0dhcpEN" value="Enable DHCPv4">
                      </div>
 
                      <button class="Button" type="submit" id="gc"> Generate Config </button>
