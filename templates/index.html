@@ -5,7 +5,7 @@
         <title>Config Gen</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="app.css">
+        <link rel="stylesheet" href="../static/app.css">
     </head>
     <body>
         <div class = "sidebar" id = "sidebar">
@@ -16,7 +16,7 @@
             <div class="topbar">
                 <h1>Config Gen</h1>
             </div> 
-            <form action = "#">
+            <form action = "#" id="configForm">
                 <div class ="Container">
                     <div class="System" id="System">
                         <h1> System Information </h1>
@@ -99,7 +99,7 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
+                        <label for="v1dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
                         <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
                     </div>
 
@@ -121,7 +121,7 @@
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v1ipPre">Choose a VLAN prefix:</label>
+                        <label for="v0ipPre">Choose a VLAN prefix:</label>
                         <select name="v1ipPre" id="v1ipPre">
                         <option value="/31">/31</option>
                         <option value="/30">/30</option>
@@ -141,15 +141,15 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="dhcpEN"> Enable DHCPv4 server on VLAN </label>
+                        <label for="v0dhcpEN"> Enable DHCPv4 server on VLAN </label>
                         <input type="checkbox" name="dhcpEN" value="Enable DHCPv4">
                      </div>
 
-                     <button class="Button" type="button" onclick="ValidateAll()" id="gc"> Generate Config </button>
+                     <button class="Button" type="submit" id="gc"> Generate Config </button>
                 </div>
             </form>
         </div>
         
-        <script src="script.js"></script>
+        <script src="../static/script.js"></script>
     </body>
 </html>

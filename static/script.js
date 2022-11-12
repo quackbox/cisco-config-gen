@@ -1,5 +1,6 @@
 // Xan's front-end config gen | created 10/11/2022
 // declaring constants, most of these are divs/containers or buttons to be referenced later
+const form = document.getElementById("configForm");
 const addVLANButton = document.getElementById("addvlan");
 const deleteVLANButton = document.getElementById("deletevlan");
 const systemContainer = document.getElementById("System");
@@ -33,11 +34,29 @@ var counter = 1;
 sideBar.style.top = "120px";
 sideBar.style.right = "" +  (systemContainer.offsetLeft - 100) + "px";
 
-// adding events
+// adding event listeners
+
 addVLANButton.addEventListener("click", addVLAN);
 deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
 firstVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
+
+form.addEventListener("submit", function(event){
+    event.preventDefault();
+    const formData = new FormData(this);
+    // collecion of key value pairs which match the id and id value
+    fetch('http://127.0.0.1:5000/generate', {
+        method: 'post',
+        crossorigin: true,
+        body: formData
+    }).then (function(response){
+        return response.text;
+    }).then (function(text){
+        console.log(text);
+    }).catch(function(err){
+        console.error(err);
+    })
+})
 
 // functions
 // calculates how many fields need to be validated (used for adding vlans and final validation)

@@ -1,28 +1,21 @@
 from flask import Flask, render_template, request
-from forms import ConfigForm
+from flask_restful import Api, Resource, reqparse
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'abcdefu'
+api = Api(app)
 
+class TestResponse(Resource):
+    def get(self):
+        return {"test":"get"}, 200
+    
+    def post(self):
+        return {"type":"post"}, 200
 
-@app.route('/', methods=['POST', 'GET'])
+api.add_resource(TestResponse, "/generate")
+
+@app.route("/", methods=["GET"])
 def home():
-    form = None
-    new_vlan = None
+    return render_template("index.html")
 
-    try:
-        new_vlan = request.form.to_dict(flat=False)['new_vlan'][0]
-    except:
-        pass
-
-    if new_vlan:
-        form = ConfigForm(request.form, new_vlan)
-    else:
-        form = ConfigForm()
-
-    print(dir(form))
-
-    return render_template('home.html', form=form)
-
-if __name__ == '__main__':
-    app.run()
+if __name__ == "__main__":
+    app.run(debug=True)
