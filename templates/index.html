@@ -106,16 +106,16 @@
 
                     
                     <div class="hide" id="optionalvlan">
-                        <h1 id = "vlan0title"> Vlan Information </h1>
+                        <h1 id = "vlan0title"> Vlan 0 Information </h1>
                         <hr>
 
-                        <label for="v0ID" id = "v0IDLabel">Vlan ID</label>
+                        <label for="v0ID" id = "v0IDLabel">Vlan 0 ID</label>
                         <input type="text" class="vID text" placeholder="Enter VLAN ID" id="v0ID" name="v0ID">
                         <div class="hide err"id="v0IDerr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v0ipv4" id="v0ipv4Label">Vlan IPv4 Interface</label>
+                        <label for="v0ipv4" id="v0ipv4Label">Vlan 0 IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v0ipv4" name="v0ipv4">
 
                         <div class="hide err"id="v0ipv4err">
@@ -142,12 +142,50 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="v0dhcpEN" id="v0dhcpENLabel"> Enable DHCPv4 server on VLAN </label>
+                        <label for="v0dhcpEN" id="v0dhcpENLabel"> Enable DHCPv4 server on VLAN 0</label>
                         <input type="checkbox" name="v0dhcpEN" id ="v0dhcpEN" value="Enable DHCPv4">
+                     </div>
+
+                     <div class = "hide" id ="optionalPF">
+                        <h1 id = "PortForwarding0Title"> Port Forwarding 0 Information </h1>
+
+                        <label for="protocol0" id ="protocol0Label">Choose a protocol (TCP/UDP):</label>
+                        <select name="protocol0" id="protocol0">
+                        <option value="TCP">TCP</option>
+                        <option value="UDP">UDP</option>
+                        </select>
+
+                        <label for="p0sIP" id="p0sILabel"> Source IP Address</label>
+                        <input type="text" class="ipv4altered text" placeholder="Enter IPv4 address or leave blank" id="p0sIP" name="p0sIP">
+                        <div class="hide err"id="p0sIPerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="exPortNo0" id ="exPortNo0Label">External Port Number</label>
+                        <input type="text" class="portNo text" placeholder="Enter external port number" id="exPortNo0" name="exPortNo0">
+                        <!--1-65353-->
+                        <div class="hide err"id="exPortNo0err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="p0iIP" id="p0iILabel"> Internal IP Address</label>
+                        <input type="text" class="ipv4" placeholder="Enter IPv4 address" id="p0iIP" name="p0iIP">
+                        <div class="hide err"id="p0iIPerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+                        
+                        <label for="inPortNo0" id ="inPortNo0Label">Internal Port Number</label>
+                        <input type="text" class="portNo text" placeholder="Enter internal port number" id="inPortNo0" name="inPortNo0">
+                        <!--1-65353-->
+                        <div class="hide err"id="inPortNo0err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                      </div>
 
                      <button class="Button" type="submit" id="gc"> Generate Config </button>
                 </div>
+
             </form>
         </div>
         
