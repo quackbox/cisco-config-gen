@@ -55,7 +55,7 @@ class TestResponse(Resource):
         values = request.form.to_dict(flat=False)
         response_status = generate_config(values)
 
-        return {"type":"post"}, response_status
+        return {"hostname":values["hn"][0]}, response_status
 
 api.add_resource(TestResponse, "/generate")
 
