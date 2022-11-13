@@ -59,7 +59,7 @@ body {
 .Container {
     display:block;
     max-width:80%;
-    width:800px;
+    width:800px; /*will change to 600px when doing the other options*/
     /* MARGINS MAY BE REASON FOR LACK OF CENTERING*/
     margin-left: auto;
     margin-right: auto;

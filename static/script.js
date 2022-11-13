@@ -28,7 +28,7 @@ var textTable;
 var allElements; // will be the combination of newtable and texttable once they're filtered of hidden elements
 var vlanDuplicate = document.querySelector("#optionalvlan");
 var lastHoveredElem; // used for sideBar QoL purposes
-var counter = 1;
+var vlanCounter = 1;
 
 // styling
 sideBar.style.top = "120px";
@@ -130,30 +130,54 @@ function calcValidationFields(){
 // adds a VLAN, involves setting the ID's of erros and recalculating how many fields need to be validated
 function addVLAN(){
     //increasing the vlan counter, cloning it and remvoing the hide option
-    counter++
+    vlanCounter++
     newVLAN = vlanDuplicate.cloneNode(true);
-    newVLAN.id = "vlan"+counter;
+    newVLAN.id = "vlan"+vlanCounter;
     newVLAN.classList.remove("hide");
     newVLAN.classList.add("Vlan");
     newVLAN.classList.add("optional"); //allows it to be deleted
 
     // changing the ID of the vlan so the err doesn't mess up
+    const title = newVLAN.querySelector("#vlan0title");
+
     const vlanIP = newVLAN.querySelector("#v0ipv4");
+    const vlanIPLabel = newVLAN.querySelector("#v0ipv4Label");
     const spanElement = newVLAN.querySelector("#v0ipv4err");
+
     const vlanIDEntry =  newVLAN.querySelector("#v0ID");
+    const vlanIDEntryLabel = newVLAN.querySelector("#v0IDLabel");
     const vlanIDerr = newVLAN.querySelector("#v0IDerr");
+
+    const vlanIPPreLabel = newVLAN.querySelector("#v0ipPreLabel");
     const vlanIPPre = newVLAN.querySelector("#v0ipPre");
+
+    const vlanDHCPenLabel = newVLAN.querySelector("#v0dhcpENLabel");
     const vlanDHCPen = newVLAN.querySelector("#v0dhcpEN");
 
-    vlanIP.id = "v"+counter+"ipv4";
+    // changing all the individual elements
+    title.id = "vlan"+vlanCounter+"title";
+    title.innerText = "Vlan " + vlanCounter + " Information";
+
+    vlanIPLabel.id = "v"+vlanCounter+"ipv4Label"
+    vlanIPLabel.innerText = "Vlan " + vlanCounter + " IPv4 Interface"
+    vlanIP.id = "v"+vlanCounter+"ipv4";
     vlanIP.name = vlanIP.id;
     spanElement.id = vlanIP.id +"err";
-    vlanIDEntry.id = "v"+counter+"ID";
+
+
+    vlanIDEntryLabel.id = "v"+vlanCounter+"IDLabel"
+    vlanIDEntryLabel.innerText = "Vlan " + vlanCounter + " ID" 
+    vlanIDEntry.id = "v"+vlanCounter+"ID";
     vlanIDEntry.name = vlanIDEntry.id;
     vlanIDerr.id = vlanIDEntry.id +"err";
-    vlanIPPre.id = "v"+counter+"ipPre";
+
+    vlanIPPreLabel.id = "v"+vlanCounter+"ipPreLabel";
+    vlanIPPre.id = "v"+vlanCounter+"ipPre";
     vlanIPPre.name = vlanIPPre.id;
-    vlanDHCPen.id = "v"+counter+"dhcpEN";
+
+    vlanDHCPenLabel.id = "v"+vlanCounter+"dhcpENLabel";
+    vlanDHCPenLabel.innerText = "Enable DHCPv4 Server on VLAN "+ vlanCounter;
+    vlanDHCPen.id = "v"+vlanCounter+"dhcpEN";
     vlanDHCPen.name = vlanDHCPen.id;
 
     newVLAN.addEventListener("mouseenter", sideBarAlignOnHover)

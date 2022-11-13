@@ -65,7 +65,7 @@
                     </div>
                     
                     <div class="Vlan" id="vlan1">
-                        <h1> Vlan Information </h1>
+                        <h1> Vlan 1 Information </h1>
                         <hr>
 
                         <label for="v1ID">Vlan 1 ID</label>
@@ -74,13 +74,13 @@
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v1ipv4">Vlan 1 IPv4 Interface</label>
+                        <label for="v1ipv4" id="v1ipv4Label">Vlan 1 IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v1ipv4" name="v1ipv4">
                         <div class="hide err"id="v1ipv4err">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v1ipPre">Choose a VLAN prefix:</label>
+                        <label for="v1ipPre" id = "v1ipPreLabel">Choose a VLAN prefix:</label>
                         <select name="v1ipPre" id="v1ipPre">
                         <option value="/31">/31</option>
                         <option value="/30">/30</option>
@@ -100,29 +100,29 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="v1dhcpEN"> Enable DHCPv4 server on VLAN 1 </label>
+                        <label for="v1dhcpEN" id ="v1dhcpENLabel" > Enable DHCPv4 server on VLAN 1 </label>
                         <input type="checkbox" name="v1dhcpEN" id ="v1dhcpEN" value="Enable DHCPv4">
                     </div>
 
                     
                     <div class="hide" id="optionalvlan">
-                        <h1> Vlan Information </h1>
+                        <h1 id = "vlan0title"> Vlan Information </h1>
                         <hr>
 
-                        <label for="v0ID">Vlan ID</label>
+                        <label for="v0ID" id = "v0IDLabel">Vlan ID</label>
                         <input type="text" class="vID text" placeholder="Enter VLAN ID" id="v0ID" name="v0ID">
                         <div class="hide err"id="v0IDerr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v0ipv4">Vlan IPv4 Interface</label>
+                        <label for="v0ipv4" id="v0ipv4Label">Vlan IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v0ipv4" name="v0ipv4">
 
                         <div class="hide err"id="v0ipv4err">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v0ipPre">Choose a VLAN prefix:</label>
+                        <label for="v0ipPre" id ="v0ipPreLabel">Choose a VLAN prefix:</label>
                         <select name="v0ipPre" id="v0ipPre">
                         <option value="/31">/31</option>
                         <option value="/30">/30</option>
@@ -142,8 +142,8 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="v0dhcpEN"> Enable DHCPv4 server on VLAN </label>
-                        <input type="checkbox" name="v0dhcpEN" id = "v0dhcpEN" value="Enable DHCPv4">
+                        <label for="v0dhcpEN" id="v0dhcpENLabel"> Enable DHCPv4 server on VLAN </label>
+                        <input type="checkbox" name="v0dhcpEN" id ="v0dhcpEN" value="Enable DHCPv4">
                      </div>
 
                      <button class="Button" type="submit" id="gc"> Generate Config </button>
