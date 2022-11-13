@@ -39,3 +39,4 @@ Thumbs.db
 # custom #
 ##########
 __pycache__
+output/**
