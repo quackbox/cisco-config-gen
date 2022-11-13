@@ -42,7 +42,8 @@ def generate_config(values):
         wan_type = wan_type,
         vlans = vlans
     )
-    print(output)
+    with open("output/{}.txt".format(hostname.lstrip("/").lstrip(".")), "w") as f:
+        f.write(output)
 
     return 200
 
