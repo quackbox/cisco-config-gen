@@ -35,6 +35,10 @@ ipv6 unicast-routing
 ipv6 cef
 ip cef
 !
+ip inspect name FWv4 tcp router-traffic
+ip inspect name FWv4 udp router-traffic
+ip inspect name FWv4 icmp
+!
 lldp run
 cdp run
 !
@@ -92,11 +96,17 @@ ip access-list extended ACL-NAT
  permit ip 10.0.0.0 0.255.255.255 any
  deny ip any any
  exit
+ip access-list extended ACL-INTRA_LAN-IN
+ deny ip 192.168.0.0 0.0.255.255 any
+ deny ip 172.16.0.0 0.15.255.255 any
+ deny ip 10.0.0.0 0.255.255.255 any
+ permit ip any any
 !
 {% for vlan_id, vlan in vlans.items() -%}
 interface Vlan{{ vlan_id }}
  ip address {{ vlan["gateway"] }} {{ vlan["mask"] }}
  no ipv6 address
+ ip access-group ACL-INTRA_LAN-IN in
  no ip proxy-arp
  no ip redirects
  ip virtual-reassembly in
