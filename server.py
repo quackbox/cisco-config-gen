@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_restful import Api, Resource, reqparse
 from ipaddress import IPv4Network
 import jinja2
@@ -62,6 +62,10 @@ api.add_resource(TestResponse, "/generate")
 @app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
+
+@app.route("/configs/<path:filename>", methods=["GET"])
+def download_config(filename):
+    return send_from_directory(directory="output", path=filename.lstrip("/").lstrip(".") + ".txt")
 
 if __name__ == "__main__":
     app.run(debug=True)
