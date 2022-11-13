@@ -19,12 +19,16 @@ def generate_config(values):
         if index[0:1] == "v":
             vlan_id = values["v{}ID".format(index[1:2])][0]
             if not vlan_id in vlans:
+                usable_addresses = list(format(host_addr) for host_addr in IPv4Network(values["v{}ipv4".format(index[1:2])][0] + values["v{}ipPre".format(index[1:2])][0], False).hosts())
                 vlans[vlan_id] = {
                     "gateway": values["v{}ipv4".format(index[1:2])][0],
                     "mask": IPv4Network("0.0.0.0" + values["v{}ipPre".format(index[1:2])][0]).netmask,
                     "native": True if index[1:2] == "1" else False,
                     "dhcpv4_enabled": True if "v{}dhcpEN".format(index[1:2]) in values else False,
                     "id": vlan_id,
+                    "dhcpv4_first": [usable_addresses[0], usable_addresses[-5]],
+                    "dhcpv4_last": [usable_addresses[9], usable_addresses[-1]],
+                    "network_addr": format(IPv4Network(values["v{}ipv4".format(index[1:2])][0] + values["v{}ipPre".format(index[1:2])][0], False).network_address),
                 }
 
     configs_loader = jinja2.FileSystemLoader(searchpath="./configs")
@@ -35,6 +39,7 @@ def generate_config(values):
         primary_dns = primary_dns,
         secondary_dns = secondary_dns,
         password = password,
+        wan_type = wan_type,
         vlans = vlans
     )
     print(output)

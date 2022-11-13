@@ -105,6 +105,24 @@ interface Vlan{{ vlan_id }}
  exit
 {% endfor -%}
 !
+{% for vlan_id, vlan in vlans.items() -%}
+{% if vlan["dhcpv4_enabled"] == True -%}
+ip dhcp excluded-address {{ vlan["dhcpv4_first"][0] }} {{ vlan["dhcpv4_last"][0] }}
+ip dhcp excluded-address {{ vlan["dhcpv4_first"][1] }} {{ vlan["dhcpv4_last"][1] }}
+{% endif -%}
+{% endfor -%}
+{% for vlan_id, vlan in vlans.items() -%}
+{% if vlan["dhcpv4_enabled"] == True -%}
+ip dhcp pool VLAN{{ vlan_id }}
+ network {{ vlan["network_addr"] }}
+ dns-server {{ vlan["gateway"] }}
+ default-router {{ vlan["gateway"] }}
+ lease 0 6
+ exit
+{% endif -%}
+{% endfor -%}
+!
+{% if wan_type == "IPoE" -%}
 interface GigabitEthernet0/0/0
  ip address dhcp
  no ipv6 address
@@ -112,7 +130,7 @@ interface GigabitEthernet0/0/0
  no ip redirects
  no ip proxy-arp
  ip nat outside
- ip inspect FWv4 outside
+ ip inspect FWv4 out
  ip virtual-reassembly in
  ip tcp adjust-mss 1460
  no cdp enable
@@ -122,6 +140,53 @@ interface GigabitEthernet0/0/0
  service-policy output PMAP-Speed-Parent
  no shut
  exit
+{% elif wan_type == "Static IP" -%}
+interface GigabitEthernet0/0/0
+ ip address <IP ADDRESS>
+ no ipv6 address
+ ip access-group ACL-INFRASTRUCTURE-IN in
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+ ip inspect FWv4 out
+ ip virtual-reassembly in
+ ip tcp adjust-mss 1460
+ no cdp enable
+ no lldp transmit
+ speed auto
+ duplex auto
+ service-policy output PMAP-Speed-Parent
+ no shut
+ exit
+{% else -%}
+interface Dialer0
+ ip address negotiated
+ no ipv6 address
+ ip access-group ACL-INFRASTRUCTURE-IN in
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+ ip inspect FWv4 out
+ ip virtual-reassembly in
+ encapsulation ppp
+ dialer pool 1
+ ppp chap callin
+ ppp chap hostname <ISP USER>
+ ppp chap password <ISP PASS>
+ no cdp enable
+ mtu 1492
+ ip tcp adjust-mss 1452
+ speed auto
+ duplex auto
+ service-policy output PMAP-Speed-Parent
+ no shut
+ exit
+interface GigabitEthernet0/0/0
+ pppoe enable group global
+ pppoe-client dial-pool-number 1
+ no shut
+ exit
+{% endif -%}
 interface GigabitEthernet0/1/0
  {% if vlans|length > 1 -%}
  {% for vlan_id, vlan in vlans.items() -%}
@@ -210,7 +275,6 @@ line vty 0 4
  privilege level 15
  logging synchronous
  transport input ssh
-!
 !
 ip route 0.0.0.0 0.0.0.0 dhcp 128
 !
