@@ -13,6 +13,8 @@ const minimum = 4; // used for regex validation
 const maximum = 15;
 const optionalPF = document.getElementById("optionalPF");
 
+
+
 // table/object to hold the respective classes' error messages
 const errMsgs = [
     {
@@ -29,6 +31,8 @@ const errMsgs = [
 // most of these are used in the calcValidationFields function, to track what fields to validate
 var IPv4Collection;
 var TextCollection;
+var checkboxes = document.querySelectorAll('[type="checkbox"]');
+var checkboxArray = Array.from(checkboxes);
 var newtable;
 var textTable;
 var allElements; // will be the combination of newtable and texttable once they're filtered of hidden elements
@@ -104,6 +108,64 @@ form.addEventListener("submit", function(event){
     }
 
 })
+
+
+
+function initCheckboxes(){
+    console.log("initialising checkboxes");
+    checkboxes = document.querySelectorAll('[type="checkbox"]');
+    console.log(checkboxes)
+    checkboxArray = Array.from(checkboxes);
+    filter = [];
+    
+    for (i=0;i<checkboxArray.length;i++){
+        if (checkboxArray[i].id.includes('0')){
+            filter.push(checkboxArray[i])
+        }
+    }
+
+    for (i =0; i<filter.length; i++){
+        for (j=0;j<checkboxArray.length;j++){
+            if (filter[i] == checkboxArray[j])
+            checkboxArray.splice(j, 1);
+        }
+    }
+
+    console.log(checkboxArray);
+    for (i=0; i< checkboxArray.length; i++){
+        checkboxArray[i].removeEventListener("click", enableHelper)
+        checkboxArray[i].addEventListener("click", enableHelper)
+        enableHelper(checkboxArray[i]);
+    }
+}
+
+function enableHelper(eventorelement){
+    console.log("helper adjusted")
+    var element;
+    if (eventorelement.target != null){
+        element = eventorelement.target;
+    }
+    else{
+        element = eventorelement;
+    }
+
+    var numbertable = element.id.match(/(\d+)/);
+    //returns a table, not really sure which index to use, both the same
+    console.log(numbertable);
+    var helperEl = document.getElementById("v"+numbertable[0]+"Helper");
+    var helperElLabel = document.getElementById("v"+numbertable[0]+"HelperLabel");
+
+    // should check whether it's a DCHP thing but cba
+    if (element.checked == true){
+        helperEl.classList.add("hide");
+        helperElLabel.classList.add("hide");
+    }
+    else{
+
+        helperEl.classList.remove("hide");
+        helperElLabel.classList.remove("hide");
+    }
+}
 
 // functions
 // calculates how many fields need to be validated (used for adding vlans and final validation)
@@ -259,6 +321,8 @@ function addVLAN(){
     }
 
     // adding the VLAN to the validation collection
+    console.log("before init")
+    initCheckboxes();
     calcValidationFields();
 
 }
@@ -272,7 +336,7 @@ function deleteVLAN(){
         sideBar.style.top = "120px";
         hideSideBarOptions();
     }
-
+    initCheckboxes();
     calcValidationFields();
 }
 
@@ -461,6 +525,7 @@ function ValidateAll(){
 }
 
 // Functions to be run
+initCheckboxes();
 calcValidationFields();
 
 

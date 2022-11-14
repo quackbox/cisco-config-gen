@@ -9,7 +9,7 @@
     </head>
     <body>
         <div class = "sidebar" id = "sidebar">
-            <button type = button class = "sidebutton" id = "additems"> + </button>
+            <button type = button class = "sidebutton" id = "additems">+</button>
             <button type = button class = "hide sidebutton" id = "deleteitem"> </button>
         </div>
         <div class = "sidebaroptions" id ="sidebaroptions">
@@ -104,8 +104,15 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="v1dhcpEN" id ="v1dhcpENLabel" > Enable DHCPv4 server on VLAN 1 </label>
+                        <label for="v1dhcpEN" id ="v1dhcpENLabel"> Enable DHCPv4 server on VLAN 1 </label>
                         <input type="checkbox" name="v1dhcpEN" id ="v1dhcpEN" value="Enable DHCPv4">
+
+                        <label for="v1Helper" id = "v1HelperLabel" class="hide">Vlan 1 IPv4 Helper Address</label>
+                        <input type="text" class="ipv4altered text hide" placeholder="Enter IPv4 Helper Address" id="v1Helper" name="v1Helper">
+                        <div class="hide err"id="v1Helpererr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                     </div>
 
                     
@@ -148,13 +155,19 @@
 
                         <label for="v0dhcpEN" id="v0dhcpENLabel"> Enable DHCPv4 server on VLAN 0</label>
                         <input type="checkbox" name="v0dhcpEN" id ="v0dhcpEN" value="Enable DHCPv4">
+
+                        <label for="v0Helper" id = "v0HelperLabel" class="hide">Vlan 0 IPv4 Helper Address</label>
+                        <input type="text" class="ipv4altered text hide" placeholder="Enter IPv4 Helper Address" id="v0Helper" name="v0Helper">
+                        <div class="hide err"id="v0Helpererr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
                      </div>
 
                      <div class = "hide" id ="optionalPF">
                         <h1 id = "PortForwarding0Title"> Port Forwarding 0 Information </h1>
 
-                        <label for="protocol0" id ="protocol0Label">Choose a protocol (TCP/UDP):</label>
-                        <select name="protocol0" id="protocol0">
+                        <label for="p0protocol" id ="p0protocolLabel">Choose a protocol (TCP/UDP):</label>
+                        <select name="p0protocol" id="p0protocol">
                         <option value="TCP">TCP</option>
                         <option value="UDP">UDP</option>
                         </select>
@@ -165,10 +178,10 @@
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="exPortNo0" id ="exPortNo0Label">External Port Number</label>
-                        <input type="text" class="portNo text" placeholder="Enter external port number" id="exPortNo0" name="exPortNo0">
+                        <label for="p0exPort" id ="p0exPortLabel">External Port Number</label>
+                        <input type="text" class="portNo text" placeholder="Enter external port number" id="p0exPort" name="p0exPort">
                         <!--1-65353-->
-                        <div class="hide err"id="exPortNo0err">
+                        <div class="hide err"id="p0exPorterr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
@@ -178,10 +191,10 @@
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
                         
-                        <label for="inPortNo0" id ="inPortNo0Label">Internal Port Number</label>
-                        <input type="text" class="portNo text" placeholder="Enter internal port number" id="inPortNo0" name="inPortNo0">
+                        <label for="p0inPort" id ="p0inPortLabel">Internal Port Number</label>
+                        <input type="text" class="portNo text" placeholder="Enter internal port number" id="p0inPort" name="p0inPort">
                         <!--1-65353-->
-                        <div class="hide err"id="inPortNo0err">
+                        <div class="hide err"id="p0inPorterr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
