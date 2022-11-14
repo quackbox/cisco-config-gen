@@ -153,6 +153,8 @@ function enableHelper(eventorelement){
     if (element.checked == true){
         helperEl.classList.add("hide");
         helperElLabel.classList.add("hide");
+        helperEl.value = "";
+        ValidateField(helperEl);
     }
     else{
 
