@@ -106,6 +106,9 @@ interface Vlan{{ vlan_id }}
  no ip proxy-arp
  no ip redirects
  ip virtual-reassembly in
+ {% if vlan["helper_enabled"] == True -%}
+ ip helper-address {{ vlan["helper_addr"] }}
+ {% endif -%}
  ip nat inside
  ip tcp adjust-mss 1300
  exit

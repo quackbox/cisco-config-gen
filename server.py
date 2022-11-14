@@ -14,6 +14,7 @@ def generate_config(values):
     model = values["model"][0]
     wan_type = values["WAN"][0]
     vlans = {}
+    port_forwards = {}
 
     for index in values:
         if index[0:1] == "v":
@@ -29,6 +30,20 @@ def generate_config(values):
                     "dhcpv4_first": [usable_addresses[0], usable_addresses[-5]],
                     "dhcpv4_last": [usable_addresses[9], usable_addresses[-1]],
                     "network_addr": format(IPv4Network(values["v{}ipv4".format(index[1:2])][0] + values["v{}ipPre".format(index[1:2])][0], False).network_address),
+                    "helper_enabled": True if values["v{}Helper".format(index[1:2])][0] != "" else False,
+                    "helper_addr": values["v{}Helper".format(index[1:2])][0]
+                }
+
+    for index in values:
+        if index[0:1] == "p" and index != "pipv4" and index != "pw":
+            pfwd_id = index[1:2]
+            if not pfwd_id in port_forwards:
+                port_forwards[pfwd_id] = {
+                    "protocol": values["p{}protocol".format(pfwd_id)][0].lower(),
+                    "source": values["p{}sIP".format(pfwd_id)][0] if values["p{}sIP".format(pfwd_id)][0] != "" else "any",
+                    "destination": values["p{}iIP".format(pfwd_id)][0],
+                    "src_port": values["p{}exPort".format(pfwd_id)][0],
+                    "dst_port": values["p{}inPort".format(pfwd_id)][0],
                 }
 
     configs_loader = jinja2.FileSystemLoader(searchpath="./configs")
@@ -40,7 +55,8 @@ def generate_config(values):
         secondary_dns = secondary_dns,
         password = password,
         wan_type = wan_type,
-        vlans = vlans
+        vlans = vlans,
+        port_forwards = port_forwards
     )
     with open("output/{}.txt".format(hostname.lstrip("/").lstrip(".")), "w") as f:
         f.write(output)
@@ -54,6 +70,8 @@ class TestResponse(Resource):
     def post(self):
         values = request.form.to_dict(flat=False)
         response_status = generate_config(values)
+
+        #print(values)
 
         return {"hostname":values["hn"][0]}, response_status
 

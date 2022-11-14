@@ -76,6 +76,15 @@ policy-map PMAP-Speed-Parent
 !
 ip access-list extended ACL-INFRASTRUCTURE-IN
  <fill your own ACL in>
+ remark "Port Forwards"
+ {% for pfwd_id, pfwd in port_forwards.items() -%}
+ {% if pfwd["source"] == "any" -%}
+ permit {{ pfwd["protocol"] }} {{ pfwd["source"] }} any eq {{ pfwd["src_port"] }}
+ {% else -%}
+ permit {{ pfwd["protocol"] }} host {{ pfwd["source"] }} any eq {{ pfwd["src_port"] }}
+ {% endif -%}
+ {% endfor -%}
+ deny ip any any
  exit
 ip access-list extended ACL-SSH-IN
  permit tcp 192.168.0.0 0.0.0.255 any eq 22
@@ -162,6 +171,9 @@ interface Vlan{{ vlan_id }}
  no ip proxy-arp
  no ip redirects
  ip virtual-reassembly
+ {% if vlan["helper_enabled"] == True -%}
+ ip helper-address {{ vlan["helper_addr"] }}
+ {% endif -%}
  ip nat inside
  ip tcp adjust-mss 1300
  exit
@@ -346,8 +358,14 @@ no ip nat service rtsp udp
 no ip nat service rtsp tcp
 !
 {% if wan_type == "PPPoE" -%}
+{% for pfwd_id, pfwd in port_forwards.items() -%}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface Dialer0 {{ pfwd["dst_port"] }}
+{% endfor -%}
 ip nat inside source list ACL-NAT interface Dialer0 overload
 {% else -%}
+{% for pfwd_id, pfwd in port_forwards.items() -%}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface GigabitEthernet0/0/0 {{ pfwd["dst_port"] }}
+{% endfor -%}
 ip nat inside source list ACL-NAT interface GigabitEthernet0/0/0 overload
 {% endif -%}
 !
