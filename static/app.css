@@ -25,33 +25,79 @@ body {
 
 .sidebar {
     background-color: white;
-    border-radius: 20px;
-    height: 110px;
-    width: 70px;
+    border-radius: 25px;
+    width: 55px;
+    height: fit-content;
     z-index: 1;
     margin: auto;
     position: absolute;
     offset-distance: 120;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /*buttons go off text align*/
-    align-items: center;
+    display: inline-block;
+    text-align: center;
+    box-sizing: border-box;
     transition: 0.2s;
 }
 
+
 .sidebutton{
-    width:90%;
-    height:100%;
+    width:50px;
+    height:50px;
     padding:5%;
     margin:5%;
-    border-radius:20px;
+    border-radius:50%;
     border-color:rgb(103, 80, 130);
     color:white;
     background: rgb(139, 109, 174);
     font-weight: bold;
 }
 
-.sidebutton:hover{
+
+#additems {
+    font-size:xx-large;
+}
+
+#deleteitem {
+    background-image: url("../static/3481306.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 50px;
+    width: 50px;
+}
+
+
+.sidebaroptions{
+    border-radius: 20px;
+    height: 80px;
+    width: 180px;
+    z-index: 1;
+    right: 140px;
+    margin: auto;
+    position: absolute;
+    offset-distance: 120;
+    transition: width 0.3s;
+    transition-duration: 1;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /*buttons go off text align*/
+    align-items: center;
+}
+
+
+.sidebarbutton{
+    width:100%;
+    height:50%;
+    margin:2%;
+    padding:2%;
+    border-radius:20px;
+    border: 2px solid white;
+    color:white;
+    background: rgb(139, 109, 174);
+    font-weight: bold;
+}
+
+
+.sidebutton:hover, .sidebarbutton:hover{
     cursor:pointer;
     border: 4px solid rgb(96, 76, 118);
     background-color:  rgb(121, 94, 152);

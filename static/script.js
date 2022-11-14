@@ -2,10 +2,13 @@
 // declaring constants, most of these are divs/containers or buttons to be referenced later
 const form = document.getElementById("configForm");
 const addVLANButton = document.getElementById("addvlan");
-const deleteVLANButton = document.getElementById("deletevlan");
+const addPFButton = document.getElementById("addPF")
+const showOptionsButton = document.getElementById("additems");
+const deleteVLANButton = document.getElementById("deleteitem");
 const systemContainer = document.getElementById("System");
 const firstVLAN = document.getElementById("vlan1");
 const sideBar = document.getElementById("sidebar");
+const sideBarOptions = document.getElementById("sidebaroptions")
 const minimum = 4; // used for regex validation
 const maximum = 15;
 const optionalPF = document.getElementById("optionalPF");
@@ -38,9 +41,14 @@ var PFCounter = 0;
 sideBar.style.top = "120px";
 sideBar.style.right = "" +  (systemContainer.offsetLeft - 100) + "px";
 
+sideBarOptions.style.width = "0px";
+sideBarOptions.top = "120px";
+
 // adding event listeners
 
-addVLANButton.addEventListener("click", addPF);
+addPFButton.addEventListener("click", addPF);
+showOptionsButton.addEventListener("click", showSideBarOptions);
+addVLANButton.addEventListener("click", addVLAN);
 deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
 firstVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
@@ -255,13 +263,14 @@ function addVLAN(){
 
 }
 
-function deleteVLAN(event){
+function deleteVLAN(){
     var elem = lastHoveredElem
 
     if (elem.classList[1] == "optional")
     {
         elem.parentNode.removeChild(elem);
         sideBar.style.top = "120px";
+        hideSideBarOptions();
     }
 
     calcValidationFields();
@@ -269,6 +278,11 @@ function deleteVLAN(event){
 
 //aligns the sidebar on the element hovered (VLans and System containers)
 function sideBarAlignOnHover(event){
+
+    if (event.target != lastHoveredElem){
+        hideSideBarOptions();
+    }
+
     lastHoveredElem = event.target;
     sideBar.style.top = "" + event.target.offsetTop +"px";
     sideBar.style.right = "" +  (event.target.offsetLeft - 100) + "px";
@@ -280,6 +294,25 @@ function sideBarAlignOnHover(event){
     else{
         deleteVLANButton.classList.add("hide");
     }
+
+}
+
+function showSideBarOptions(){
+    sideBarOptions.style.opacity = 1;
+    sideBarOptions.classList.remove("hide");
+    sideBarOptions.classList.add("left");
+    var sideBarRight = sideBar.style.right.replace("px", "");
+    sideBarOptions.style.width = "180px";
+    var sideBarOptionsWidth = sideBarOptions.style.width.replace("px", "");
+
+    sideBarOptions.style.right = (sideBarRight - sideBarOptionsWidth - 10) +"px";
+    sideBarOptions.style.top = sideBar.style.top;
+}
+
+function hideSideBarOptions(){
+    sideBarOptions.style.width = "0px";
+    sideBarOptions.top = "120px";
+    sideBarOptions.style.opacity = 0;
 }
 
 // marks validation failed elements with an error
@@ -354,6 +387,7 @@ function ValidateField(element){
 
     const type = newelement.classList[0];
 
+    //checking classes to validate based on class
     if (type == "ipv4"){
         regex = IPRegex; //testing needs to be IP
         err = errMsgs[0].ipv4;
@@ -399,6 +433,7 @@ function ValidateField(element){
         match = regex.test(newelement.value);
     }
 
+    // if match is true, mark it fine else mark an error
     if (match==false){
         MarkError(newelement, err);
     }
