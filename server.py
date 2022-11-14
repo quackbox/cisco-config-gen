@@ -13,6 +13,7 @@ def generate_config(values):
     secondary_dns = values["sipv4"][0]
     model = values["model"][0]
     wan_type = values["WAN"][0]
+    suffix = values["suffix"][0]
     vlans = {}
     port_forwards = {}
 
@@ -56,7 +57,8 @@ def generate_config(values):
         password = password,
         wan_type = wan_type,
         vlans = vlans,
-        port_forwards = port_forwards
+        port_forwards = port_forwards,
+        suffix = suffix
     )
     with open("output/{}.txt".format(hostname.lstrip("/").lstrip(".")), "w") as f:
         f.write(output)
@@ -71,7 +73,7 @@ class TestResponse(Resource):
         values = request.form.to_dict(flat=False)
         response_status = generate_config(values)
 
-        #print(values)
+        print(values)
 
         return {"hostname":values["hn"][0]}, response_status
 
