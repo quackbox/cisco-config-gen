@@ -95,11 +95,12 @@ form.addEventListener("submit", function(event){
             method: 'post',
             crossorigin: true,
             body: formData
-        }).then (function(response){
-            return response.text;
-        }).then (function(text){
-            console.log(text);
-        }).catch(function(err){
+        })
+        .then(response => response.json())
+        .then(data => {
+            window.open("/configs/" + data.hostname, "_blank");
+        })
+        .catch(function(err){
             console.error(err);
         })
     }

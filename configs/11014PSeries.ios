@@ -10,17 +10,13 @@ hostname {{ hostname }}
 !
 logging buffered 51200 informational
 no logging console
-log config
-logging enable
-notify syslog contenttype plaintext
-hidekeys
 !
 aaa new-model
 aaa authentication login default local
 aaa authorization console
 aaa authorization exec default local
 !
-clock timezone <TZ_NAME> <HR> <MIN>
+clock timezone ACST 9 30
 !
 ntp server 1.au.pool.ntp.org
 ntp server 2.au.pool.ntp.org
@@ -28,21 +24,18 @@ ntp server 3.au.pool.ntp.org
 !
 ip name-server {{ primary_dns }}
 ip name-server {{ secondary_dns }}
-ip domain name <DNS_SUFFIX>
+ip domain name <DNS SUFFIX>
 ip dns server
 !
 ipv6 unicast-routing
-ipv6 cef
-ip cef
-!
-ip inspect name FWv4 tcp router-traffic
-ip inspect name FWv4 udp router-traffic
-ip inspect name FWv4 icmp
+ipv6 cef distributed
+ip cef distributed
 !
 lldp run
 cdp run
 !
 archive
+ exit
 !
 username root privilege 15 secret {{ password }}
 !
@@ -76,19 +69,18 @@ policy-map PMAP-Speed-Child
  exit
 policy-map PMAP-Speed-Parent
  class class-default
-  shape average <UPLOAD BPS>
+  shape average <BPS>
    service-policy PMAP-Speed-Child
   exit
  exit
 !
 ip access-list extended ACL-INFRASTRUCTURE-IN
- <bla bla>
+ <fill your own ACL in>
  exit
 ip access-list extended ACL-SSH-IN
  permit tcp 192.168.0.0 0.0.0.255 any eq 22
  permit tcp 172.16.0.0 0.15.255.255 any eq 22
  permit tcp 10.0.0.0 0.255.255.255 any eq 22
- ! permit tcp host <PUBLIC HOSTS> any eq 22
  exit
 ip access-list extended ACL-NAT
  permit ip 192.168.0.0 0.0.255.255 any
@@ -96,20 +88,80 @@ ip access-list extended ACL-NAT
  permit ip 10.0.0.0 0.255.255.255 any
  deny ip any any
  exit
-ip access-list extended ACL-INTRA_LAN-IN
- deny ip 192.168.0.0 0.0.255.255 any
- deny ip 172.16.0.0 0.15.255.255 any
- deny ip 10.0.0.0 0.255.255.255 any
- permit ip any any
+!
+class-map type inspect match-any CMAP-ALL-PROTOCOLS
+ match protocol tcp
+ match protocol udp
+ match protocol icmp
+ exit
+class-map type inspect match-any CMAP-STD-WAN
+ match access-group name ACL-INFRASTRUCTURE-IN
+ exit
+!
+policy-map type inspect PMAP-LAN-TO-WAN
+ class type inspect CMAP-ALL-PROTOCOLS
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-INSPECT-ALL
+ class type inspect CMAP-ALL-PROTOCOLS
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-WAN-TO-LAN
+ class type inspect CMAP-STD-WAN
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-INTRAZONE
+ class class-default
+  drop
+  exit
+ exit
+!
+zone security LAN
+ exit
+zone security WAN
+ exit
+zone-pair security ZP-LAN-TO-WAN source LAN destination WAN
+ service-policy type inspect PMAP-LAN-TO-WAN
+ exit
+zone-pair security ZP-WAN-TO-LAN source WAN destination LAN
+ service-policy type inspect PMAP-WAN-TO-LAN
+ exit
+zone-pair security ZP-LAN-TO-LAN source LAN destination LAN
+ service-policy type inspect PMAP-INTRAZONE
+ exit
+zone-pair security ZP-LAN-TO-self source LAN destination self
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+zone-pair security ZP-WAN-TO-SELF source WAN destination self
+ service-policy type inspect PMAP-WAN-TO-LAN
+ exit
+zone-pair security ZP-SELF-TO-WAN source self destination WAN
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+zone-pair security ZP-SELF-TO-LAN source self destination LAN
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
 !
 {% for vlan_id, vlan in vlans.items() -%}
 interface Vlan{{ vlan_id }}
  ip address {{ vlan["gateway"] }} {{ vlan["mask"] }}
  no ipv6 address
- ip access-group ACL-INTRA_LAN-IN in
+ zone-member security LAN
  no ip proxy-arp
  no ip redirects
- ip virtual-reassembly in
+ ip virtual-reassembly
  ip nat inside
  ip tcp adjust-mss 1300
  exit
@@ -140,17 +192,15 @@ ip dhcp pool VLAN{{ vlan_id }}
 interface GigabitEthernet0/0/0
  ip address dhcp
  no ipv6 address
- ip access-group ACL-INFRASTRUCTURE-IN in
+ zone-member security WAN
  no ip redirects
  no ip proxy-arp
  ip nat outside
- ip inspect FWv4 out
- ip virtual-reassembly in
+ ip virtual-reassembly
  ip tcp adjust-mss 1460
  no cdp enable
  no lldp transmit
- speed auto
- duplex auto
+ negotiation auto
  service-policy output PMAP-Speed-Parent
  no shut
  exit
@@ -158,17 +208,15 @@ interface GigabitEthernet0/0/0
 interface GigabitEthernet0/0/0
  ip address <IP ADDRESS>
  no ipv6 address
- ip access-group ACL-INFRASTRUCTURE-IN in
+ zone-member security WAN
  no ip redirects
  no ip proxy-arp
  ip nat outside
- ip inspect FWv4 out
  ip virtual-reassembly in
  ip tcp adjust-mss 1460
  no cdp enable
  no lldp transmit
- speed auto
- duplex auto
+ negotiation auto
  service-policy output PMAP-Speed-Parent
  no shut
  exit
@@ -176,12 +224,11 @@ interface GigabitEthernet0/0/0
 interface Dialer0
  ip address negotiated
  no ipv6 address
- ip access-group ACL-INFRASTRUCTURE-IN in
+ zone-member security WAN
  no ip redirects
  no ip proxy-arp
  ip nat outside
- ip inspect FWv4 out
- ip virtual-reassembly in
+ ip virtual-reassembly
  encapsulation ppp
  dialer pool 1
  ppp chap callin
@@ -191,8 +238,7 @@ interface Dialer0
  no lldp transmit
  mtu 1492
  ip tcp adjust-mss 1452
- speed auto
- duplex auto
+ negotiation auto
  service-policy output PMAP-Speed-Parent
  no shut
  exit
@@ -293,6 +339,11 @@ line vty 0 4
  exit
 !
 ip route 0.0.0.0 0.0.0.0 dhcp 128
+!
+no ip nat service sip tcp port 5060
+no ip nat service sip udp port 5060
+no ip nat service rtsp udp
+no ip nat service rtsp tcp
 !
 {% if wan_type == "PPPoE" -%}
 ip nat inside source list ACL-NAT interface Dialer0 overload
