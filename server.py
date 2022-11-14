@@ -60,7 +60,7 @@ def generate_config(values):
         port_forwards = port_forwards,
         suffix = suffix
     )
-    with open("output/{}.txt".format(hostname.lstrip("/").lstrip(".")), "w") as f:
+    with open("output/{}.txt".format(hostname.lstrip("/").lstrip("\\").lstrip(".").lstrip("%")), "w") as f:
         f.write(output)
 
     return 200
@@ -85,7 +85,7 @@ def home():
 
 @app.route("/configs/<path:filename>", methods=["GET"])
 def download_config(filename):
-    return send_from_directory(directory="output", path=filename.lstrip("/").lstrip(".") + ".txt")
+    return send_from_directory(directory="output", path=filename.lstrip("/").lstrip("\\").lstrip(".").lstrip("%") + ".txt")
 
 if __name__ == "__main__":
     app.run(debug=True)
