@@ -359,12 +359,12 @@ no ip nat service rtsp tcp
 !
 {% if wan_type == "PPPoE" -%}
 {% for pfwd_id, pfwd in port_forwards.items() -%}
-ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface Dialer0 {{ pfwd["dst_port"] }}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface Dialer0 {{ pfwd["src_port"] }}
 {% endfor -%}
 ip nat inside source list ACL-NAT interface Dialer0 overload
 {% else -%}
 {% for pfwd_id, pfwd in port_forwards.items() -%}
-ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface GigabitEthernet0/0/0 {{ pfwd["dst_port"] }}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface GigabitEthernet0/0/0 {{ pfwd["src_port"] }}
 {% endfor -%}
 ip nat inside source list ACL-NAT interface GigabitEthernet0/0/0 overload
 {% endif -%}
