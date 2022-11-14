@@ -363,8 +363,6 @@ function sideBarAlignOnHover(event){
 
 function showSideBarOptions(){
     sideBarOptions.style.opacity = 1;
-    sideBarOptions.classList.remove("hide");
-    sideBarOptions.classList.add("left");
     var sideBarRight = sideBar.style.right.replace("px", "");
     sideBarOptions.style.width = "180px";
     var sideBarOptionsWidth = sideBarOptions.style.width.replace("px", "");
