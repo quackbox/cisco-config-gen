@@ -24,7 +24,7 @@ ntp server 3.au.pool.ntp.org
 !
 ip name-server {{ primary_dns }}
 ip name-server {{ secondary_dns }}
-ip domain name <DNS SUFFIX>
+ip domain name {{ suffix }}
 ip dns server
 !
 ipv6 unicast-routing
