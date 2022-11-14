@@ -71,13 +71,10 @@ form.addEventListener("submit", function(event){
         for (const [key, value] of formData){
 
             if (key.includes('0')){
-                console.log("found");
                 // formData.delete(key) causes holes? I think?
                 newarray[i] = key;
                 i++;
             }
-
-            console.log(key)
         }
 
         for (j=0;j<newarray.length;j++){
@@ -114,9 +111,7 @@ form.addEventListener("submit", function(event){
 
 
 function initCheckboxes(){
-    console.log("initialising checkboxes");
     checkboxes = document.querySelectorAll('[type="checkbox"]');
-    console.log(checkboxes)
     checkboxArray = Array.from(checkboxes);
     filter = [];
     
@@ -133,7 +128,6 @@ function initCheckboxes(){
         }
     }
 
-    console.log(checkboxArray);
     for (i=0; i< checkboxArray.length; i++){
         checkboxArray[i].removeEventListener("click", enableHelper)
         checkboxArray[i].addEventListener("click", enableHelper)
@@ -142,7 +136,6 @@ function initCheckboxes(){
 }
 
 function enableHelper(eventorelement){
-    console.log("helper adjusted")
     var element;
     if (eventorelement.target != null){
         element = eventorelement.target;
@@ -153,7 +146,6 @@ function enableHelper(eventorelement){
 
     var numbertable = element.id.match(/(\d+)/);
     //returns a table, not really sure which index to use, both the same
-    console.log(numbertable);
     var helperEl = document.getElementById("v"+numbertable[0]+"Helper");
     var helperElLabel = document.getElementById("v"+numbertable[0]+"HelperLabel");
 
@@ -184,8 +176,6 @@ function calcValidationFields(){
         el = newtable[i];
         if (el.parentNode.classList[0] == "hide")
         {
-            console.log("parent element found");
-            console.log(el);
             tempIP[i] = el 
         }
         
@@ -194,8 +184,6 @@ function calcValidationFields(){
         el = textTable[i];
         if (el.parentNode.classList[0] == "hide")
         {
-            console.log("parent element found");
-            console.log(el);
             tempText[i] = el
         }
     }
@@ -211,7 +199,6 @@ function calcValidationFields(){
     for (i = 0; i < tempIP.length;i++){
         for (j = 0; j < newtable.length; j++){
             if (tempIP[i] == newtable[j]){
-                console.log(newtable[j])
                 newtable.splice(j, 1)
             }
         }
@@ -219,9 +206,6 @@ function calcValidationFields(){
 
     // now that the tables are cleannsed, adding it to all elements
     allElements = newtable.concat(textTable);
-
-    console.log("logging all elements");
-    console.log(allElements);
 
     for (i=0; i<allElements.length; i++){
         allElements[i].removeEventListener("blur", ValidateField);
@@ -243,7 +227,6 @@ function addPF(){
     
     var children = newPF.children;
     for (i = 0; i < children.length; i++){
-        console.log(children[i]);
         //print id
         //check if a name
         if (children[i].name != null){
@@ -251,10 +234,7 @@ function addPF(){
         }
 
         children[i].id = children[i].id.replace("0", PFCounter);
-        console.log(children[i].id);
     }
-
-    console.log(children);
 
     labels = newPF.getElementsByTagName("Label");
     for (i = 0; i < labels.length; i++){
@@ -323,7 +303,6 @@ function addVLAN(){
     }
 
     // adding the VLAN to the validation collection
-    console.log("before init")
     initCheckboxes();
     calcValidationFields();
 
@@ -419,7 +398,6 @@ function MarkFine(element){
 
 // validates whether the input is a number, and between min and max
 function ValidateRange(number, minimum, maximum){
-    console.log(number);
     var match = false;
     if (!isNaN(number)){
         newnumber = parseInt(number);
@@ -479,7 +457,6 @@ function ValidateField(element){
         err = errMsgs[0].portNo;
     }
     else if(type == "ipv4altered"){
-        console.log("found");
         regex = IPRegex;
         firstMatch = regex.test(newelement.value);
         secondMatch = false;
