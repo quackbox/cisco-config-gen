@@ -73,7 +73,7 @@ class TestResponse(Resource):
         values = request.form.to_dict(flat=False)
         response_status = generate_config(values)
 
-        print(values)
+        #print(values)
 
         return {"hostname":values["hn"][0]}, response_status
 
