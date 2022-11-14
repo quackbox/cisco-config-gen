@@ -38,6 +38,12 @@
                         <div class="hide err"id="pwerr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
+
+                        <label for="suffix">DNS Suffix</label>
+                        <input type="text" class="suffix text" placeholder="Enter DNS suffix" id="suffix" name="suffix">
+                        <div class="hide err"id="suffixerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
     
                         <label for="pipv4">Primary IPv4 DNS Server</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 DNS Server Address" id="pipv4" name="pipv4">
@@ -54,8 +60,8 @@
     
                         <label for="model">Choose a model:</label>
                         <select name="model" id="model">
-                        <option value="800Series">800 Series</option>
-                        <option value="110Series">1100 Series</option>
+                        <!--<option value="800Series">800 Series</option>-->
+                        <!--<option value="110Series">1100 Series</option>-->
                         <option value="11014PSeries" selected>C1101-4P</option>
                         <option value="897VASeries">897VA</option>
                         </select>

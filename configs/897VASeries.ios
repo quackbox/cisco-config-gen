@@ -24,7 +24,7 @@ ntp server 3.au.pool.ntp.org
 !
 ip name-server {{ primary_dns }}
 ip name-server {{ secondary_dns }}
-ip domain name <DNS_SUFFIX>
+ip domain name {{ suffix }}
 ip dns server
 !
 ipv6 unicast-routing
@@ -78,7 +78,16 @@ policy-map PMAP-Speed-Parent
  exit
 !
 ip access-list extended ACL-INFRASTRUCTURE-IN
- <bla bla>
+ <fill your own ACL in>
+ remark "Port Forwards"
+ {% for pfwd_id, pfwd in port_forwards.items() -%}
+ {% if pfwd["source"] == "any" -%}
+ permit {{ pfwd["protocol"] }} {{ pfwd["source"] }} any eq {{ pfwd["src_port"] }}
+ {% else -%}
+ permit {{ pfwd["protocol"] }} host {{ pfwd["source"] }} any eq {{ pfwd["src_port"] }}
+ {% endif -%}
+ {% endfor -%}
+ deny ip any any
  exit
 ip access-list extended ACL-SSH-IN
  permit tcp 192.168.0.0 0.0.0.255 any eq 22
@@ -372,8 +381,14 @@ line vty 0 4
 ip route 0.0.0.0 0.0.0.0 dhcp 128
 !
 {% if wan_type == "PPPoE" -%}
+{% for pfwd_id, pfwd in port_forwards.items() -%}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface Dialer0 {{ pfwd["src_port"] }}
+{% endfor -%}
 ip nat inside source list ACL-NAT interface Dialer0 overload
 {% else -%}
+{% for pfwd_id, pfwd in port_forwards.items() -%}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface Vlan50 {{ pfwd["src_port"] }}
+{% endfor -%}
 ip nat inside source list ACL-NAT interface Vlan50 overload
 {% endif -%}
 !
