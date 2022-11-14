@@ -9,8 +9,12 @@
     </head>
     <body>
         <div class = "sidebar" id = "sidebar">
-            <button type = button class = "sidebutton" id = "addvlan"> ADD vlan! </button>
-            <button type = button class = "hide sidebutton" id = "deletevlan"> DELETE vlan! </button>
+            <button type = button class = "sidebutton" id = "additems">+</button>
+            <button type = button class = "hide sidebutton" id = "deleteitem"> </button>
+        </div>
+        <div class = "sidebaroptions" id ="sidebaroptions">
+            <button type = button class = "sidebarbutton" id = "addvlan"> ADD vlan! </button>
+            <button type = button class = "sidebarbutton" id = "addPF"> ADD port forwarding! </button>
         </div>
         <div class="topcontainer">
             <div class="topbar">
@@ -101,22 +105,29 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="v1dhcpEN" id ="v1dhcpENLabel" > Enable DHCPv4 server on VLAN 1 </label>
+                        <label for="v1dhcpEN" id ="v1dhcpENLabel"> Enable DHCPv4 server on VLAN 1 </label>
                         <input type="checkbox" name="v1dhcpEN" id ="v1dhcpEN" value="Enable DHCPv4">
+
+                        <label for="v1Helper" id = "v1HelperLabel" class="hide">Vlan 1 IPv4 Helper Address</label>
+                        <input type="text" class="ipv4altered text hide" placeholder="Enter IPv4 Helper Address or leave blank" id="v1Helper" name="v1Helper">
+                        <div class="hide err"id="v1Helpererr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                     </div>
 
                     
                     <div class="hide" id="optionalvlan">
-                        <h1 id = "vlan0title"> Vlan Information </h1>
+                        <h1 id = "vlan0title"> Vlan 0 Information </h1>
                         <hr>
 
-                        <label for="v0ID" id = "v0IDLabel">Vlan ID</label>
+                        <label for="v0ID" id = "v0IDLabel">Vlan 0 ID</label>
                         <input type="text" class="vID text" placeholder="Enter VLAN ID" id="v0ID" name="v0ID">
                         <div class="hide err"id="v0IDerr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="v0ipv4" id="v0ipv4Label">Vlan IPv4 Interface</label>
+                        <label for="v0ipv4" id="v0ipv4Label">Vlan 0 IPv4 Interface</label>
                         <input type="text" class="ipv4" placeholder="Enter IPv4 Interface" id="v0ipv4" name="v0ipv4">
 
                         <div class="hide err"id="v0ipv4err">
@@ -143,12 +154,56 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="v0dhcpEN" id="v0dhcpENLabel"> Enable DHCPv4 server on VLAN </label>
+                        <label for="v0dhcpEN" id="v0dhcpENLabel"> Enable DHCPv4 server on VLAN 0</label>
                         <input type="checkbox" name="v0dhcpEN" id ="v0dhcpEN" value="Enable DHCPv4">
+
+                        <label for="v0Helper" id = "v0HelperLabel" class="hide">Vlan 0 IPv4 Helper Address</label>
+                        <input type="text" class="ipv4altered text hide" placeholder="Enter IPv4 Helper Address or leave blank" id="v0Helper" name="v0Helper">
+                        <div class="hide err"id="v0Helpererr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+                     </div>
+
+                     <div class = "hide" id ="optionalPF">
+                        <h1 id = "PortForwarding0Title"> Port Forwarding 0 Information </h1>
+
+                        <label for="p0protocol" id ="p0protocolLabel">Choose a protocol (TCP/UDP):</label>
+                        <select name="p0protocol" id="p0protocol">
+                        <option value="TCP">TCP</option>
+                        <option value="UDP">UDP</option>
+                        </select>
+
+                        <label for="p0sIP" id="p0sILabel"> Source IP Address</label>
+                        <input type="text" class="ipv4altered text" placeholder="Enter IPv4 address or leave blank" id="p0sIP" name="p0sIP">
+                        <div class="hide err"id="p0sIPerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="p0exPort" id ="p0exPortLabel">External Port Number</label>
+                        <input type="text" class="portNo text" placeholder="Enter external port number" id="p0exPort" name="p0exPort">
+                        <!--1-65353-->
+                        <div class="hide err"id="p0exPorterr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="p0iIP" id="p0iILabel"> Internal IP Address</label>
+                        <input type="text" class="ipv4" placeholder="Enter IPv4 address" id="p0iIP" name="p0iIP">
+                        <div class="hide err"id="p0iIPerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+                        
+                        <label for="p0inPort" id ="p0inPortLabel">Internal Port Number</label>
+                        <input type="text" class="portNo text" placeholder="Enter internal port number" id="p0inPort" name="p0inPort">
+                        <!--1-65353-->
+                        <div class="hide err"id="p0inPorterr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
                      </div>
 
                      <button class="Button" type="submit" id="gc"> Generate Config </button>
                 </div>
+
             </form>
         </div>
         

@@ -2,12 +2,18 @@
 // declaring constants, most of these are divs/containers or buttons to be referenced later
 const form = document.getElementById("configForm");
 const addVLANButton = document.getElementById("addvlan");
-const deleteVLANButton = document.getElementById("deletevlan");
+const addPFButton = document.getElementById("addPF")
+const showOptionsButton = document.getElementById("additems");
+const deleteVLANButton = document.getElementById("deleteitem");
 const systemContainer = document.getElementById("System");
 const firstVLAN = document.getElementById("vlan1");
 const sideBar = document.getElementById("sidebar");
+const sideBarOptions = document.getElementById("sidebaroptions")
 const minimum = 4; // used for regex validation
 const maximum = 15;
+const optionalPF = document.getElementById("optionalPF");
+
+
 
 // table/object to hold the respective classes' error messages
 const errMsgs = [
@@ -16,6 +22,8 @@ const errMsgs = [
         text: "Must contain only alphanumeric characters, -, _ and be between " + minimum + " - " + maximum + " characters long with no spaces",
         password: "Must be between " + minimum + " - " + maximum + " characters long with no spaces",
         vID: "Must be between or equal to 2 and 4095",
+        portNo: "Must be between or equal to 1 and 65353",
+        ipv4altered: "Must be a valid IP address or blank (which results in any)",
     }
 ]
 
@@ -23,19 +31,27 @@ const errMsgs = [
 // most of these are used in the calcValidationFields function, to track what fields to validate
 var IPv4Collection;
 var TextCollection;
+var checkboxes = document.querySelectorAll('[type="checkbox"]');
+var checkboxArray = Array.from(checkboxes);
 var newtable;
 var textTable;
 var allElements; // will be the combination of newtable and texttable once they're filtered of hidden elements
 var vlanDuplicate = document.querySelector("#optionalvlan");
 var lastHoveredElem; // used for sideBar QoL purposes
 var vlanCounter = 1;
+var PFCounter = 0;
 
 // styling
 sideBar.style.top = "120px";
 sideBar.style.right = "" +  (systemContainer.offsetLeft - 100) + "px";
 
+sideBarOptions.style.width = "0px";
+sideBarOptions.top = "120px";
+
 // adding event listeners
 
+addPFButton.addEventListener("click", addPF);
+showOptionsButton.addEventListener("click", showSideBarOptions);
 addVLANButton.addEventListener("click", addVLAN);
 deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
@@ -52,14 +68,15 @@ form.addEventListener("submit", function(event){
         const formData = new FormData(this);
 
         for (const [key, value] of formData){
-            console.log([key, value]);
-            const regex = /^v0/;
 
-            if (regex.test(key) == true){
+            if (key.includes('0')){
+                console.log("found");
                 // formData.delete(key) causes holes? I think?
                 newarray[i] = key;
                 i++;
             }
+
+            console.log(key)
         }
 
         for (j=0;j<newarray.length;j++){
@@ -74,7 +91,7 @@ form.addEventListener("submit", function(event){
 
 
         // collecion of key value pairs which match the id and id value
-        fetch('http://127.0.0.1:5000/generate', {
+        fetch('/generate', {
             method: 'post',
             crossorigin: true,
             body: formData
@@ -92,6 +109,64 @@ form.addEventListener("submit", function(event){
 
 })
 
+
+
+function initCheckboxes(){
+    console.log("initialising checkboxes");
+    checkboxes = document.querySelectorAll('[type="checkbox"]');
+    console.log(checkboxes)
+    checkboxArray = Array.from(checkboxes);
+    filter = [];
+    
+    for (i=0;i<checkboxArray.length;i++){
+        if (checkboxArray[i].id.includes('0')){
+            filter.push(checkboxArray[i])
+        }
+    }
+
+    for (i =0; i<filter.length; i++){
+        for (j=0;j<checkboxArray.length;j++){
+            if (filter[i] == checkboxArray[j])
+            checkboxArray.splice(j, 1);
+        }
+    }
+
+    console.log(checkboxArray);
+    for (i=0; i< checkboxArray.length; i++){
+        checkboxArray[i].removeEventListener("click", enableHelper)
+        checkboxArray[i].addEventListener("click", enableHelper)
+        enableHelper(checkboxArray[i]);
+    }
+}
+
+function enableHelper(eventorelement){
+    console.log("helper adjusted")
+    var element;
+    if (eventorelement.target != null){
+        element = eventorelement.target;
+    }
+    else{
+        element = eventorelement;
+    }
+
+    var numbertable = element.id.match(/(\d+)/);
+    //returns a table, not really sure which index to use, both the same
+    console.log(numbertable);
+    var helperEl = document.getElementById("v"+numbertable[0]+"Helper");
+    var helperElLabel = document.getElementById("v"+numbertable[0]+"HelperLabel");
+
+    // should check whether it's a DCHP thing but cba
+    if (element.checked == true){
+        helperEl.classList.add("hide");
+        helperElLabel.classList.add("hide");
+    }
+    else{
+
+        helperEl.classList.remove("hide");
+        helperElLabel.classList.remove("hide");
+    }
+}
+
 // functions
 // calculates how many fields need to be validated (used for adding vlans and final validation)
 function calcValidationFields(){
@@ -99,12 +174,17 @@ function calcValidationFields(){
     TextCollection = document.getElementsByClassName("text");
     newtable = Array.from(IPv4Collection);
     textTable = Array.from(TextCollection);
+    var tempText = [];
+    var tempIP = [];
 
+    // mark all fields with a 0 in a new table (to avoid holes)
     for (i=0;i<newtable.length;i++){
         el = newtable[i];
         if (el.parentNode.classList[0] == "hide")
         {
-            newtable.splice(i, 1)
+            console.log("parent element found");
+            console.log(el);
+            tempIP[i] = el 
         }
         
     }
@@ -112,13 +192,33 @@ function calcValidationFields(){
         el = textTable[i];
         if (el.parentNode.classList[0] == "hide")
         {
-            textTable.splice(i, 1)
+            console.log("parent element found");
+            console.log(el);
+            tempText[i] = el
         }
-        
     }
 
-    //adding it to all elements
+    //iterate over the new tables, check for matches in the original tables and delete/splice
+    for (i = 0; i < tempText.length;i++){
+        for (j = 0; j < textTable.length; j++){
+            if (tempText[i] == textTable[j]){
+                textTable.splice(j, 1)
+            }
+        }
+    }
+    for (i = 0; i < tempIP.length;i++){
+        for (j = 0; j < newtable.length; j++){
+            if (tempIP[i] == newtable[j]){
+                console.log(newtable[j])
+                newtable.splice(j, 1)
+            }
+        }
+    }
+
+    // now that the tables are cleannsed, adding it to all elements
     allElements = newtable.concat(textTable);
+
+    console.log("logging all elements");
     console.log(allElements);
 
     for (i=0; i<allElements.length; i++){
@@ -127,6 +227,56 @@ function calcValidationFields(){
     }
 }
 
+function addPF(){
+    PFCounter++;
+    newPF = optionalPF.cloneNode(true);
+    newPF.id = "PF"+PFCounter;
+    newPF.classList.remove("hide");
+    newPF.classList.add("PF");
+    newPF.classList.add("optional");
+
+    heading = newPF.querySelector("#PortForwarding0Title");
+    heading.id = "PortForwarding"+PFCounter+"Title";
+    heading.innerText = "Port Forwarding "+PFCounter+" Information"
+    
+    var children = newPF.children;
+    for (i = 0; i < children.length; i++){
+        console.log(children[i]);
+        //print id
+        //check if a name
+        if (children[i].name != null){
+            children[i].name = children[i].name.replace("0", PFCounter);
+        }
+
+        children[i].id = children[i].id.replace("0", PFCounter);
+        console.log(children[i].id);
+    }
+
+    console.log(children);
+
+    labels = newPF.getElementsByTagName("Label");
+    for (i = 0; i < labels.length; i++){
+        oldfor = labels[i].getAttribute("for");
+        newfor = oldfor.replace("0", PFCounter);
+        labels[i].setAttribute("for", newfor);
+        labels[i].innerText = labels[i].innerText.replace("0", PFCounter);
+    }
+
+    newPF.addEventListener("mouseenter", sideBarAlignOnHover);
+
+    //need to insert it in the DOM before adding it to validation
+    if (lastHoveredElem != systemContainer){
+        lastHoveredElem.after(newPF);
+    }
+    else{
+        firstVLAN.after(newPF);
+    }
+
+    // adding the VLAN to the validation collection
+    calcValidationFields();
+    
+
+}
 // adds a VLAN, involves setting the ID's of erros and recalculating how many fields need to be validated
 function addVLAN(){
     //increasing the vlan counter, cloning it and remvoing the hide option
@@ -138,49 +288,29 @@ function addVLAN(){
     newVLAN.classList.add("optional"); //allows it to be deleted
 
     // changing the ID of the vlan so the err doesn't mess up
-    const title = newVLAN.querySelector("#vlan0title");
+    heading = newVLAN.querySelector("#vlan0title");
+    heading.id = "vlan"+vlanCounter+"title";
+    heading.innerText = "Vlan "+vlanCounter+" Information"
 
-    const vlanIP = newVLAN.querySelector("#v0ipv4");
-    const vlanIPLabel = newVLAN.querySelector("#v0ipv4Label");
-    const spanElement = newVLAN.querySelector("#v0ipv4err");
+    var children = newVLAN.children;
+    for (i = 0; i < children.length; i++){
 
-    const vlanIDEntry =  newVLAN.querySelector("#v0ID");
-    const vlanIDEntryLabel = newVLAN.querySelector("#v0IDLabel");
-    const vlanIDerr = newVLAN.querySelector("#v0IDerr");
+        if (children[i].name != null){
+            children[i].name = children[i].name.replace("0", vlanCounter);
+        }
 
-    const vlanIPPreLabel = newVLAN.querySelector("#v0ipPreLabel");
-    const vlanIPPre = newVLAN.querySelector("#v0ipPre");
+        children[i].id = children[i].id.replace("0", vlanCounter);
+    }
 
-    const vlanDHCPenLabel = newVLAN.querySelector("#v0dhcpENLabel");
-    const vlanDHCPen = newVLAN.querySelector("#v0dhcpEN");
+    labels = newVLAN.getElementsByTagName("Label");
+    for (i = 0; i < labels.length; i++){
+        oldfor = labels[i].getAttribute("for");
+        newfor = oldfor.replace("0", vlanCounter);
+        labels[i].setAttribute("for", newfor);
+        labels[i].innerText = labels[i].innerText.replace("0", vlanCounter);
+    }
 
-    // changing all the individual elements
-    title.id = "vlan"+vlanCounter+"title";
-    title.innerText = "Vlan " + vlanCounter + " Information";
-
-    vlanIPLabel.id = "v"+vlanCounter+"ipv4Label"
-    vlanIPLabel.innerText = "Vlan " + vlanCounter + " IPv4 Interface"
-    vlanIP.id = "v"+vlanCounter+"ipv4";
-    vlanIP.name = vlanIP.id;
-    spanElement.id = vlanIP.id +"err";
-
-
-    vlanIDEntryLabel.id = "v"+vlanCounter+"IDLabel"
-    vlanIDEntryLabel.innerText = "Vlan " + vlanCounter + " ID" 
-    vlanIDEntry.id = "v"+vlanCounter+"ID";
-    vlanIDEntry.name = vlanIDEntry.id;
-    vlanIDerr.id = vlanIDEntry.id +"err";
-
-    vlanIPPreLabel.id = "v"+vlanCounter+"ipPreLabel";
-    vlanIPPre.id = "v"+vlanCounter+"ipPre";
-    vlanIPPre.name = vlanIPPre.id;
-
-    vlanDHCPenLabel.id = "v"+vlanCounter+"dhcpENLabel";
-    vlanDHCPenLabel.innerText = "Enable DHCPv4 Server on VLAN "+ vlanCounter;
-    vlanDHCPen.id = "v"+vlanCounter+"dhcpEN";
-    vlanDHCPen.name = vlanDHCPen.id;
-
-    newVLAN.addEventListener("mouseenter", sideBarAlignOnHover)
+    newVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
 
     //need to insert it in the DOM before adding it to validation
     if (lastHoveredElem != systemContainer){
@@ -191,24 +321,32 @@ function addVLAN(){
     }
 
     // adding the VLAN to the validation collection
+    console.log("before init")
+    initCheckboxes();
     calcValidationFields();
 
 }
 
-function deleteVLAN(event){
+function deleteVLAN(){
     var elem = lastHoveredElem
 
     if (elem.classList[1] == "optional")
     {
         elem.parentNode.removeChild(elem);
         sideBar.style.top = "120px";
+        hideSideBarOptions();
     }
-
+    initCheckboxes();
     calcValidationFields();
 }
 
 //aligns the sidebar on the element hovered (VLans and System containers)
 function sideBarAlignOnHover(event){
+
+    if (event.target != lastHoveredElem){
+        hideSideBarOptions();
+    }
+
     lastHoveredElem = event.target;
     sideBar.style.top = "" + event.target.offsetTop +"px";
     sideBar.style.right = "" +  (event.target.offsetLeft - 100) + "px";
@@ -220,6 +358,25 @@ function sideBarAlignOnHover(event){
     else{
         deleteVLANButton.classList.add("hide");
     }
+
+}
+
+function showSideBarOptions(){
+    sideBarOptions.style.opacity = 1;
+    sideBarOptions.classList.remove("hide");
+    sideBarOptions.classList.add("left");
+    var sideBarRight = sideBar.style.right.replace("px", "");
+    sideBarOptions.style.width = "180px";
+    var sideBarOptionsWidth = sideBarOptions.style.width.replace("px", "");
+
+    sideBarOptions.style.right = (sideBarRight - sideBarOptionsWidth - 10) +"px";
+    sideBarOptions.style.top = sideBar.style.top;
+}
+
+function hideSideBarOptions(){
+    sideBarOptions.style.width = "0px";
+    sideBarOptions.top = "120px";
+    sideBarOptions.style.opacity = 0;
 }
 
 // marks validation failed elements with an error
@@ -294,6 +451,7 @@ function ValidateField(element){
 
     const type = newelement.classList[0];
 
+    //checking classes to validate based on class
     if (type == "ipv4"){
         regex = IPRegex; //testing needs to be IP
         err = errMsgs[0].ipv4;
@@ -311,10 +469,35 @@ function ValidateField(element){
         match = ValidateRange(newelement.value, 2, 4095);
         err = errMsgs[0].vID;
     }
+    else if (type == "portNo"){
+        match = ValidateRange(newelement.value, 1, 65353);
+        err = errMsgs[0].portNo;
+    }
+    else if(type == "ipv4altered"){
+        console.log("found");
+        regex = IPRegex;
+        firstMatch = regex.test(newelement.value);
+        secondMatch = false;
+        if (newelement.value.length == 0){
+            secondMatch = true
+        }
+        else{
+            secondMatch = false;
+        }
+
+        if (firstMatch == true || secondMatch == true){
+            match = true
+        }
+        else{
+            match = false;
+            err = errMsgs[0].ipv4altered
+        }
+    }
     else{
         match = regex.test(newelement.value);
     }
 
+    // if match is true, mark it fine else mark an error
     if (match==false){
         MarkError(newelement, err);
     }
@@ -342,6 +525,7 @@ function ValidateAll(){
 }
 
 // Functions to be run
+initCheckboxes();
 calcValidationFields();
 
 
