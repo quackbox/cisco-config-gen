@@ -1,4 +1,5 @@
 // Xan's front-end config gen | created 10/11/2022
+
 // declaring constants, most of these are divs/containers or buttons to be referenced later
 const form = document.getElementById("configForm");
 const addVLANButton = document.getElementById("addvlan");
@@ -12,8 +13,6 @@ const sideBarOptions = document.getElementById("sidebaroptions")
 const minimum = 4; // used for regex validation
 const maximum = 15;
 const optionalPF = document.getElementById("optionalPF");
-
-
 
 // table/object to hold the respective classes' error messages
 const errMsgs = [
@@ -45,12 +44,10 @@ var PFCounter = 0;
 // styling
 sideBar.style.top = "120px";
 sideBar.style.right = "" +  (systemContainer.offsetLeft - 100) + "px";
-
 sideBarOptions.style.width = "0px";
 sideBarOptions.top = "120px";
 
 // adding event listeners
-
 addPFButton.addEventListener("click", addPF);
 showOptionsButton.addEventListener("click", showSideBarOptions);
 addVLANButton.addEventListener("click", addVLAN);
@@ -58,6 +55,7 @@ deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
 firstVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
 
+// on submission, filter out the 0 IDs and send to backend
 form.addEventListener("submit", function(event){
     event.preventDefault();
 
@@ -109,21 +107,172 @@ form.addEventListener("submit", function(event){
 })
 
 const fileSelector = document.getElementById('importfile');
+// On import, read the file and import the contents
 fileSelector.addEventListener('change', (event) => {
     // fileSelector can have multiple files, so each file or the one file, is stored in an array
     // this array is the filelist
   const fileList = event.target.files;
   console.log(fileList);
   console.log(fileList[0]);
+  var giantstring;
+  var fieldarray = [];
 
   var fr=new FileReader();
-        fr.onload=function(){
-            console.log(fr.result)
+    fr.onload=function(){
+        console.log(fr.result)
+        giantstring = fr.result;
+        console.log(giantstring)
+            
+        if (giantstring != null){
+            fieldarray.push(giantstring.split(","));
+            console.log(fieldarray);
+            //is an array of arrays
+            ImportData(fieldarray[0]);
+        }
     }
     fr.readAsText(fileList[0]);
-                
+    //importing
+
 });
 
+const downloadFile = () => {
+    const link = document.createElement("a");
+    const formData = new FormData(document.getElementById("configForm"));
+    var newarray = [];
+    var filearray = [];
+
+    for (const [key, value] of formData){
+
+        if (key.includes('0')){
+            // formData.delete(key) causes holes? I think?
+            newarray[i] = key;
+            i++;
+        }
+    }
+
+    for (j=0;j<newarray.length;j++){
+        for (const [key, value] of formData){
+            if (newarray[j] == key){
+                formData.delete(key);
+            }
+        }
+    }
+
+    for (const [key, value] of formData){
+        filearray.push(key + ":" + value)
+    }
+
+    const content = filearray;
+    const file = new Blob([content], { type: 'text/plain' });
+    link.href = URL.createObjectURL(file);
+    link.download = "configexport.txt";
+    link.click();
+    URL.revokeObjectURL(link.href);
+ };
+
+const exportFile = document.getElementById("export");
+exportFile.addEventListener('click', downloadFile)
+
+function ImportData(array){
+    for (i = 0; i< array.length; i++){
+        var idandvalue = [];
+        string = array[i];
+        idandvalue.push(string.split(":"));
+        //string.split stores the array, in a big array, so access the [0] index
+        el = document.getElementById(idandvalue[0][0]);
+        if (el != null){
+            if (el.id.includes("dhcpEN")){
+                el.checked = true;
+                enableHelper(el);
+            }
+            else{
+                el.value = idandvalue[0][1];
+            }
+        }
+        else{
+            if(idandvalue[0][0].includes("p")){
+                // check whether an empty one already exists
+                // check whether PF Counter > 0, otherwise it'll get added to the hidden element -_-
+                if (PFCounter > 0){
+                    var latestNo = PFCounter
+                    var numbertable = idandvalue[0][0].match(/(\d+)/);
+                    var givenID = numbertable[0]
+                    var newid = idandvalue[0][0].replace(givenID, PFCounter)
+    
+                    var newel = document.getElementById(newid);
+                }
+                else{
+                    addPF();
+                    latestNo = PFCounter
+                    var numbertable = idandvalue[0][0].match(/(\d+)/);
+                    givenID = numbertable[0]
+                    newid = idandvalue[0][0].replace(givenID, PFCounter)
+                    newel = document.getElementById(newid);
+                    if (newel.id.includes("dhcpEN")){
+                        newel.checked = true;
+                        enableHelper(newel);
+                    }
+                    else{
+                        newel.value = idandvalue[0][1];
+                    }
+                }
+
+                //if it doesn't exist, but the PF counter is > 0, create a new one
+                if (newel == null){
+                    addPF();
+                    latestNo = PFCounter
+                    var numbertable = idandvalue[0][0].match(/(\d+)/);
+                    givenID = numbertable[0]
+                    newid = idandvalue[0][0].replace(givenID, PFCounter)
+                    newel = document.getElementById(newid);
+                    if (newel.id.includes("dhcpEN")){
+                        newel.checked = true;
+                        enableHelper(newel);
+                    }
+                    else{
+                        newel.value = idandvalue[0][1];
+                    }
+                }
+                else{
+                    if (newel.id.includes("dhcpEN")){
+                        newel.checked = true;
+                        enableHelper(newel);
+                    }
+                    else{
+                        newel.value = idandvalue[0][1];
+                    }
+                }
+            }
+            else if (idandvalue[0][0].includes("v")){
+                // check whether an empty one already exists
+                // check whether PF Counter > 0, otherwise it'll get added to the hidden element -_-
+                addVLAN();
+                latestNo = vlanCounter
+                var numbertable = idandvalue[0][0].match(/(\d+)/);
+                givenID = numbertable[0]
+                newid = idandvalue[0][0].replace(givenID, vlanCounter)
+                newel = document.getElementById(newid);
+                newel.value = idandvalue[0][1];
+            
+
+                //if it doesn't exist, but the PF counter is > 0, create a new one
+                if (newel == null){
+                    addPF();
+                    latestNo = vlanCounter
+                    var numbertable = idandvalue[0][0].match(/(\d+)/);
+                    givenID = numbertable[0]
+                    newid = idandvalue[0][0].replace(givenID, vlanCounter)
+                    newel = document.getElementById(newid);
+                    newel.value = idandvalue[0][1];
+                }
+                else{
+                    newel.value = idandvalue[0][1];
+                }
+            }
+        }
+    }
+    ValidateAll();
+}
 
 function initCheckboxes(){
     checkboxes = document.querySelectorAll('[type="checkbox"]');
@@ -508,6 +657,7 @@ function ValidateField(element){
 
 // validates all fields in the AllElements table
 function ValidateAll(){
+    console.log("validation run")
     var ableToSubmit = true;
 
     for (i=0; i<allElements.length; i++){
