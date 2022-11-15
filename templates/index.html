@@ -10,6 +10,10 @@
     <body>
         <div class = "sidebar" id = "sidebar">
             <button type = button class = "sidebutton" id = "additems">+</button>
+            <button type = button class = "sidebutton" id = "import"> 
+                <input type = "file" id = "importfile"/>
+            </button>
+            <button type = button class = "sidebutton" id = "export"> </button>
             <button type = button class = "hide sidebutton" id = "deleteitem"> </button>
         </div>
         <div class = "sidebaroptions" id ="sidebaroptions">
@@ -32,7 +36,7 @@
                             <!-- the error message is changed in the .js file-->
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
-    
+                        
                         <label for="pw">Password</label>
                         <input type="password" class="password text" placeholder="Enter global router password" id="pw" name="pw">
                         <div class="hide err"id="pwerr">

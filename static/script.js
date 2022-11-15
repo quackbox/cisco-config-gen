@@ -108,6 +108,21 @@ form.addEventListener("submit", function(event){
 
 })
 
+const fileSelector = document.getElementById('importfile');
+fileSelector.addEventListener('change', (event) => {
+    // fileSelector can have multiple files, so each file or the one file, is stored in an array
+    // this array is the filelist
+  const fileList = event.target.files;
+  console.log(fileList);
+  console.log(fileList[0]);
+
+  var fr=new FileReader();
+        fr.onload=function(){
+            console.log(fr.result)
+    }
+    fr.readAsText(fileList[0]);
+                
+});
 
 
 function initCheckboxes(){
