@@ -438,7 +438,7 @@ function addVLAN(){
     // changing the ID of the vlan so the err doesn't mess up
     heading = newVLAN.querySelector("#vlan0title");
     heading.id = "vlan"+vlanCounter+"title";
-    heading.innerText = "Vlan "+vlanCounter+" Information"
+    heading.innerText = "Tagged VLAN"; //"Vlan "+vlanCounter+" Information"
 
     var children = newVLAN.children;
     for (i = 0; i < children.length; i++){
