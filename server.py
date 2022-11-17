@@ -22,15 +22,15 @@ def generate_config(values):
         if index[0:1] == "v":
             vlan_id = values["v{}ID".format(index[1:2])][0]
             if not vlan_id in vlans:
-                usable_addresses = list(format(host_addr) for host_addr in IPv4Network(values["v{}ipv4".format(index[1:2])][0] + values["v{}ipPre".format(index[1:2])][0], False).hosts())
+                usable_addresses = list(format(host_addr) for host_addr in IPv4Network(values["v{}ipv4".format(index[1:2])][0] + values["v{}ipPre".format(index[1:2])][0], False).hosts()) if int(values["v{}ipPre".format(index[1:2])][0].lstrip("/")) <= 26 else None
                 vlans[vlan_id] = {
                     "gateway": values["v{}ipv4".format(index[1:2])][0],
                     "mask": IPv4Network("0.0.0.0" + values["v{}ipPre".format(index[1:2])][0]).netmask,
                     "native": True if index[1:2] == "1" else False,
-                    "dhcpv4_enabled": True if "v{}dhcpEN".format(index[1:2]) in values else False,
+                    "dhcpv4_enabled": True if "v{}dhcpEN".format(index[1:2]) in values and usable_addresses is not None else False,
                     "id": vlan_id,
-                    "dhcpv4_first": [usable_addresses[0], usable_addresses[-5]],
-                    "dhcpv4_last": [usable_addresses[9], usable_addresses[-1]],
+                    "dhcpv4_first": [usable_addresses[0], usable_addresses[-5]] if usable_addresses is not None else None,
+                    "dhcpv4_last": [usable_addresses[9], usable_addresses[-1]] if usable_addresses is not None else None,
                     "network_addr": format(IPv4Network(values["v{}ipv4".format(index[1:2])][0] + values["v{}ipPre".format(index[1:2])][0], False).network_address),
                     "helper_enabled": True if values["v{}Helper".format(index[1:2])][0] != "" else False,
                     "helper_addr": values["v{}Helper".format(index[1:2])][0]
