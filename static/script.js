@@ -611,10 +611,6 @@ function ValidateField(element){
         regex = suffixRegex;
         err = errMsgs[0].suffix
     }
-    else if (type == "bps"){
-        regex = bpsRegex;
-        err = errMsgs[0].bps
-    }
     else {
         regex = textRegex;
         err = errMsgs[0].text;
@@ -627,6 +623,10 @@ function ValidateField(element){
     else if (type == "portNo"){
         match = ValidateRange(newelement.value, 1, 65353);
         err = errMsgs[0].portNo;
+    }
+    else if (type == "bps"){
+        match = ValidateRange(newelement.value, 5000000, 1000000000);
+        err = errMsgs[0].bps;
     }
     else if(type == "ipv4altered"){
         regex = IPRegex;
