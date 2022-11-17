@@ -72,7 +72,7 @@ policy-map PMAP-Speed-Child
  exit
 policy-map PMAP-Speed-Parent
  class class-default
-  shape average <UPLOAD BPS>
+  shape average {{ bps }}
    service-policy PMAP-Speed-Child
   exit
  exit

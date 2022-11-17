@@ -24,6 +24,7 @@ const errMsgs = [
         portNo: "Must be between or equal to 1 and 65353",
         ipv4altered: "Must be a valid IP address or blank (which results in any)",
         suffix: "Must enter a valid domain name",
+        bps: "Must enter a valid number",
     }
 ]
 
@@ -581,6 +582,7 @@ function ValidateField(element){
     const passwordRegex = /^[a-zA-Z0-9!@#\$%\^\&*\)\(+=._-]{4,15}$/g;
     const IDregex = /^[2-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-4][0][0-9][0-4]$/;
     const suffixRegex = /\b((?=[a-z0-9-]{1,63}\.)(xn--)?[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,63}\b/g;
+    const bpsRegex = /^\d+$/;
     // the 'type' is the first class in the class list (ipv4 or text)
 
     var match = true;
@@ -608,6 +610,10 @@ function ValidateField(element){
     else if (type == "suffix"){
         regex = suffixRegex;
         err = errMsgs[0].suffix
+    }
+    else if (type == "bps"){
+        regex = bpsRegex;
+        err = errMsgs[0].bps
     }
     else {
         regex = textRegex;

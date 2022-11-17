@@ -14,6 +14,7 @@ def generate_config(values):
     model = values["model"][0]
     wan_type = values["WAN"][0]
     suffix = values["suffix"][0]
+    bps = values["bps"][0]
     vlans = {}
     port_forwards = {}
 
@@ -58,7 +59,8 @@ def generate_config(values):
         wan_type = wan_type,
         vlans = vlans,
         port_forwards = port_forwards,
-        suffix = suffix
+        suffix = suffix,
+        bps = bps
     )
     with open("output/{}.txt".format(hostname.lstrip("/").lstrip("\\").lstrip(".").lstrip("%")), "w") as f:
         f.write(output)
