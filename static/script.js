@@ -258,7 +258,7 @@ function ImportData(array){
 
                 //if it doesn't exist, but the PF counter is > 0, create a new one
                 if (newel == null){
-                    addPF();
+                    addVLAN();
                     latestNo = vlanCounter
                     var numbertable = idandvalue[0][0].match(/(\d+)/);
                     givenID = numbertable[0]
