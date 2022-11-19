@@ -215,6 +215,163 @@
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
+
+                     </div>
+
+                     <div class = "VPN" id = "optionalVPN"> 
+                        <h1 id = "VPN0Title"> VPN 0 Information </h1>
+                        <h2> IKE Configuration</h2>
+
+                        <label for="i0ipv4" id="i0ipv4Label"> Remote IPv4 Address</label>
+                        <input type="text" class="ipv4 text" placeholder="Enter IPv4 address" id="i0ipv4" name="i0ipv4">
+                        <div class="hide err"id="i0ipv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="i0PreSharedKey" id="i0PreSharedKeyLabel"> Pre-shared Key </label>
+                        <input type="text" class="text" placeholder="Enter key" id="i0PreSharedKey" name="i0PreSharedKey">
+                        <div class="hide err"id="i0PreSharedKeyerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="i0Encryption" id ="i0EncryptionLabel"> Select encryption: </label>
+                        <select name="i0Encryption" id="i0Encryption">
+                        <option value="AES-128">AES-128</option>
+                        <option value="AES-256">AES-256</option>
+                        </select>
+
+                        <label for="i0Authentication" id ="i0AuthenticationLabel"> Select authentication:</label>
+                        <select name="i0Authentication" id="i0Authentication">
+                        <option value="SHA-256">SHA-256</option>
+                        <option value="SHA-512">SHA-512</option>
+                        </select>
+
+                        <p> Select DH group: </p>
+
+                        <div class = "grid">
+                            <div>
+                                <label for="i0Diffie11" id="i0Diffie11Label"> 1 </label>
+                                <input type="checkbox" name="iDiffie11" id ="iDiffie11" value="Enable">
+                            </div>
+
+                            <div>
+                                <label for="i0Diffie12" id="i0Diffie12Label"> 2</label>
+                                <input type="checkbox" name="iDiffie12" id ="iDiffie12" value="Enable">
+                            </div>
+
+                            <div>
+                                <label for="i0Diffie15" id="i0Diffie15Label"> 5 </label>
+                                <input type="checkbox" name="iDiffie15" id ="iDiffie15" value="Enable">
+                            </div>
+                        </div>
+
+                        <label for="i0KeyLifetime" id ="i0KeyLifetimeLabel">Key Lifetime (seconds):</label>
+                        <input type="text" class="lifetime text" placeholder="Enter external port number" id="i0KeyLifetime" name="i0KeyLifetime">
+                        <!--1-65353-->
+                        <div class="hide err"id="i0KeyLifetimeerr">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <h2> IPSec Information </h2>
+
+                        <label for="i0lipv4" id="i0lipv4Label"> Local IPv4 Address</label>
+                        <input type="text" class="ipv4 text" placeholder="Enter IPv4 address" id="i0lipv4" name="i0lipv4">
+                        <div class="hide err"id="i0lipv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="i0lipv4Pre" id ="i0lipv4PreLabel">Choose a prefix for local address:</label>
+                        <select name="i0lipv4Pre" id="i0lipv4Pre">
+                        <option value="/31">/31</option>
+                        <option value="/30">/30</option>
+                        <option value="/29">/29</option>
+                        <option value="/28">/28</option>
+                        <option value="/27">/27</option>
+                        <option value="/26">/26</option>
+                        <option value="/25">/25</option>
+                        <option value="/24">/24</option>
+                        <option value="/23">/23</option>
+                        <option value="/22">/22</option>
+                        <option value="/21">/21</option>
+                        <option value="/20">/20</option>
+                        <option value="/19">/19</option>
+                        <option value="/18">/18</option>
+                        <option value="/17">/17</option>
+                        <option value="/16">/16</option>
+                        </select>
+
+                        <label for="i0ripv4" id="i0ripv4Label"> Remote IPv4 Address</label>
+                        <input type="text" class="ipv4 text" placeholder="Enter IPv4 address" id="i0ripv4" name="i0ripv4">
+                        <div class="hide err"id="i0ripv4err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+                        <label for="i0ripv4Pre" id ="i0ripv4PreLabel">Choose a prefix for remote address:</label>
+                        <select name="i0ripv4Pre" id="i0ripv4Pre">
+                        <option value="/31">/31</option>
+                        <option value="/30">/30</option>
+                        <option value="/29">/29</option>
+                        <option value="/28">/28</option>
+                        <option value="/27">/27</option>
+                        <option value="/26">/26</option>
+                        <option value="/25">/25</option>
+                        <option value="/24">/24</option>
+                        <option value="/23">/23</option>
+                        <option value="/22">/22</option>
+                        <option value="/21">/21</option>
+                        <option value="/20">/20</option>
+                        <option value="/19">/19</option>
+                        <option value="/18">/18</option>
+                        <option value="/17">/17</option>
+                        <option value="/16">/16</option>
+                        </select>
+
+                        <label for="i0Encryption2" id ="i0Encryption2Label"> Select encryption: </label>
+                        <select name="i0Encryption2" id="i0Encryption2">
+                        <option value="AES-128">AES-128</option>
+                        <option value="AES-256">AES-256</option>
+                        </select>
+
+                        <label for="i0Authentication2" id ="i0Authentication2Label"> Select authentication:</label>
+                        <select name="i0Authentication2" id="i0Authentication2">
+                        <option value="SHA-256">SHA-256</option>
+                        <option value="SHA-512">SHA-512</option>
+                        </select>
+
+                        <label for="i0ERD" id="i0ERDLabel"> Enable Replay Detection </label>
+                        <input type="checkbox" name="i0ERD" id ="i0ERD" value="Enable">
+
+                        <label for="i0PFS" id="i0PFSLabel"> Enable Perfect Forward Secrecy (PFS) </label>
+                        <input type="checkbox" name="i0PFS" id ="i0PFS" value="Enable">
+
+                        <p> Select DH group: </p>
+
+                        <div class = "grid">
+                            <div>
+                                <label for="i0Diffie11" id="i0Diffie11Label"> 1 </label>
+                                <input type="checkbox" name="iDiffie11" id ="iDiffie11" value="Enable">
+                            </div>
+
+                            <div>
+                                <label for="i0Diffie12" id="i0Diffie12Label"> 2</label>
+                                <input type="checkbox" name="iDiffie12" id ="iDiffie12" value="Enable">
+                            </div>
+
+                            <div>
+                                <label for="i0Diffie15" id="i0Diffie15Label"> 5 </label>
+                                <input type="checkbox" name="iDiffie15" id ="iDiffie15" value="Enable">
+                            </div>
+                        </div>
+
+                        
+                        <label for="i0KeyLifetime2" id ="i0KeyLifetime2Label">Key Lifetime (seconds):</label>
+                        <input type="text" class="lifetime text" placeholder="Enter external port number" id="i0KeyLifetime2" name="i0KeyLifetime2">
+                        <!--1-86,400-->
+                        <div class="hide err"id="i0KeyLifetime2err">
+                            <span class = "msg"> You got this wrong loooooool </span>
+                        </div>
+
+
                      </div>
 
                      <button class="Button" type="submit" id="gc"> Generate Config </button>
