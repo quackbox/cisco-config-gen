@@ -13,6 +13,8 @@ const sideBarOptions = document.getElementById("sidebaroptions")
 const minimum = 4; // used for regex validation
 const maximum = 15;
 const optionalPF = document.getElementById("optionalPF");
+const vlanDuplicate = document.querySelector("#optionalvlan");
+const numberRegex = /(\d+)/;
 
 // table/object to hold the respective classes' error messages
 const errMsgs = [
@@ -37,7 +39,6 @@ var checkboxArray = Array.from(checkboxes);
 var newtable;
 var textTable;
 var allElements; // will be the combination of newtable and texttable once they're filtered of hidden elements
-var vlanDuplicate = document.querySelector("#optionalvlan");
 var lastHoveredElem; // used for sideBar QoL purposes
 var vlanCounter = 1;
 var PFCounter = 0;
@@ -49,9 +50,14 @@ sideBarOptions.style.width = "0px";
 sideBarOptions.top = "120px";
 
 // adding event listeners
-addPFButton.addEventListener("click", addPF);
+// safer to use the ()=>{} when passing paramters, otherwise it runs the function inside on compilation/interpreation without the click
+addVLANButton.addEventListener("click", ()=>{
+    addItem("Vlan")
+});
+addPFButton.addEventListener("click", ()=>{
+    addItem("PF")
+});
 showOptionsButton.addEventListener("click", showSideBarOptions);
-addVLANButton.addEventListener("click", addVLAN);
 deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
 firstVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
@@ -113,8 +119,6 @@ fileSelector.addEventListener('change', (event) => {
     // fileSelector can have multiple files, so each file or the one file, is stored in an array
     // this array is the filelist
   const fileList = event.target.files;
-  console.log(fileList);
-  console.log(fileList[0]);
   var giantstring;
   var fieldarray = [];
 
@@ -174,7 +178,33 @@ const downloadFile = () => {
 const exportFile = document.getElementById("export");
 exportFile.addEventListener('click', downloadFile)
 
+function addImportElement(type, elementTable){
+    var counter;
+
+    if (type == "vlan"){
+        counter = vlanCounter;
+    }
+    else if (type == "PF"){
+        counter = PFCounter;
+    }
+
+    var numbertable = elementTable[0][0].match(/(\d+)/);
+    var givenID = numbertable[0]
+    var newid = elementTable[0][0].replace(givenID, counter);
+    var newel = document.getElementById(newid);
+    if (newel.id.includes("dhcpEN")){
+        newel.checked = true;
+        enableHelper(newel);
+    }
+    else{
+        newel.value = elementTable[0][1];
+    }
+}
+
 function ImportData(array){
+    var currentVlanIDSet = 1;
+    var currentPFIDSet = 0;
+
     for (i = 0; i< array.length; i++){
         var idandvalue = [];
         string = array[i];
@@ -190,84 +220,28 @@ function ImportData(array){
                 el.value = idandvalue[0][1];
             }
         }
+        // else, check which optional it belongs to (PF, VLAN or IP)
+        // then determine whether it's part of the same batch (currentOptionalIDSet) (for example, is it part of VLAN 1's, or starting VLAN 2)
+        // if it isn't the same batch, add a new optional DIV, and start filling those in with this batch
         else{
-            if(idandvalue[0][0].includes("p")){
-                // check whether an empty one already exists
-                // check whether PF Counter > 0, otherwise it'll get added to the hidden element -_-
-                if (PFCounter > 0){
-                    var latestNo = PFCounter
-                    var numbertable = idandvalue[0][0].match(/(\d+)/);
-                    var givenID = numbertable[0]
-                    var newid = idandvalue[0][0].replace(givenID, PFCounter)
-    
-                    var newel = document.getElementById(newid);
+            if(idandvalue[0][0][0].includes("p")){
+                if (idandvalue[0][0][1] != currentPFIDSet){
+                    currentPFIDSet = idandvalue[0][0][1];
+                    addItem("PF");
+                    addImportElement("PF", idandvalue);
                 }
                 else{
-                    addPF();
-                    latestNo = PFCounter
-                    var numbertable = idandvalue[0][0].match(/(\d+)/);
-                    givenID = numbertable[0]
-                    newid = idandvalue[0][0].replace(givenID, PFCounter)
-                    newel = document.getElementById(newid);
-                    if (newel.id.includes("dhcpEN")){
-                        newel.checked = true;
-                        enableHelper(newel);
-                    }
-                    else{
-                        newel.value = idandvalue[0][1];
-                    }
-                }
-
-                //if it doesn't exist, but the PF counter is > 0, create a new one
-                if (newel == null){
-                    addPF();
-                    latestNo = PFCounter
-                    var numbertable = idandvalue[0][0].match(/(\d+)/);
-                    givenID = numbertable[0]
-                    newid = idandvalue[0][0].replace(givenID, PFCounter)
-                    newel = document.getElementById(newid);
-                    if (newel.id.includes("dhcpEN")){
-                        newel.checked = true;
-                        enableHelper(newel);
-                    }
-                    else{
-                        newel.value = idandvalue[0][1];
-                    }
-                }
-                else{
-                    if (newel.id.includes("dhcpEN")){
-                        newel.checked = true;
-                        enableHelper(newel);
-                    }
-                    else{
-                        newel.value = idandvalue[0][1];
-                    }
+                    addImportElement("PF", idandvalue);
                 }
             }
-            else if (idandvalue[0][0].includes("v")){
-                // check whether an empty one already exists
-                // check whether PF Counter > 0, otherwise it'll get added to the hidden element -_-
-                addVLAN();
-                latestNo = vlanCounter
-                var numbertable = idandvalue[0][0].match(/(\d+)/);
-                givenID = numbertable[0]
-                newid = idandvalue[0][0].replace(givenID, vlanCounter)
-                newel = document.getElementById(newid);
-                newel.value = idandvalue[0][1];
-            
-
-                //if it doesn't exist, but the PF counter is > 0, create a new one
-                if (newel == null){
-                    addVLAN();
-                    latestNo = vlanCounter
-                    var numbertable = idandvalue[0][0].match(/(\d+)/);
-                    givenID = numbertable[0]
-                    newid = idandvalue[0][0].replace(givenID, vlanCounter)
-                    newel = document.getElementById(newid);
-                    newel.value = idandvalue[0][1];
+            else if (idandvalue[0][0][0].includes("v")){
+                if (idandvalue[0][0][1] != currentVlanIDSet){
+                    currentVlanIDSet = idandvalue[0][0][1];
+                    addItem("Vlan");
+                    addImportElement("vlan", idandvalue)
                 }
                 else{
-                    newel.value = idandvalue[0][1];
+                    addImportElement("vlan", idandvalue)
                 }
             }
         }
@@ -380,101 +354,78 @@ function calcValidationFields(){
     }
 }
 
-function addPF(){
-    PFCounter++;
-    newPF = optionalPF.cloneNode(true);
-    newPF.id = "PF"+PFCounter;
-    newPF.classList.remove("hide");
-    newPF.classList.add("PF");
-    newPF.classList.add("optional");
+function addItem(type){
+    console.log("run");
+    var counter;
+    var duplicate;
+    var headingTitle;
+    var desiredHeadingText;
+    var desiredID;
 
-    heading = newPF.querySelector("#PortForwarding0Title");
-    heading.id = "PortForwarding"+PFCounter+"Title";
-    heading.innerText = "Port Forwarding "+PFCounter+" Information"
-    
-    var children = newPF.children;
-    for (i = 0; i < children.length; i++){
-        //print id
-        //check if a name
-        if (children[i].name != null){
-            children[i].name = children[i].name.replace("0", PFCounter);
-        }
-
-        children[i].id = children[i].id.replace("0", PFCounter);
+    if (type == "Vlan"){
+        vlanCounter++;
+        duplicate = vlanDuplicate;
+        headingTitle = "#vlan0title"
+        desiredHeadingText = "Tagged VLAN";
+        desiredID = "vlan0title";
+        counter = vlanCounter;
+    }
+    else if (type = "PF"){
+        PFCounter++;
+        duplicate = optionalPF;
+        headingTitle = "#PortForwarding0Title"
+        desiredHeadingText = "Port Forwarding 0 Information"
+        desiredID = "PortForwarding0Title"
+        counter = PFCounter;
     }
 
-    labels = newPF.getElementsByTagName("Label");
-    for (i = 0; i < labels.length; i++){
-        oldfor = labels[i].getAttribute("for");
-        newfor = oldfor.replace("0", PFCounter);
-        labels[i].setAttribute("for", newfor);
-        labels[i].innerText = labels[i].innerText.replace("0", PFCounter);
-    }
+    // update the counter, add a new item and adjust the headings accordingly
+    newItem = duplicate.cloneNode(true)
+    newItem.classList.remove("hide")
+    newItem.classList.add(type);
+    newItem.classList.add("optional");
 
-    newPF.addEventListener("mouseenter", sideBarAlignOnHover);
+    heading = newItem.querySelector(headingTitle);
+    heading.id = desiredID.replace("0", counter)
+    heading.innerText = desiredHeadingText.replace("0", counter)
 
-    //need to insert it in the DOM before adding it to validation
-    if (lastHoveredElem != systemContainer){
-        lastHoveredElem.after(newPF);
-    }
-    else{
-        firstVLAN.after(newPF);
-    }
-
-    // adding the VLAN to the validation collection
-    calcValidationFields();
-    
-
-}
-// adds a VLAN, involves setting the ID's of erros and recalculating how many fields need to be validated
-function addVLAN(){
-    //increasing the vlan counter, cloning it and remvoing the hide option
-    vlanCounter++
-    newVLAN = vlanDuplicate.cloneNode(true);
-    newVLAN.id = "vlan"+vlanCounter;
-    newVLAN.classList.remove("hide");
-    newVLAN.classList.add("Vlan");
-    newVLAN.classList.add("optional"); //allows it to be deleted
-
-    // changing the ID of the vlan so the err doesn't mess up
-    heading = newVLAN.querySelector("#vlan0title");
-    heading.id = "vlan"+vlanCounter+"title";
-    heading.innerText = "Tagged VLAN"; //"Vlan "+vlanCounter+" Information"
-
-    var children = newVLAN.children;
+    //
+    var children = newItem.children;
     for (i = 0; i < children.length; i++){
 
         if (children[i].name != null){
-            children[i].name = children[i].name.replace("0", vlanCounter);
+            children[i].name = children[i].name.replace("0", counter);
         }
 
-        children[i].id = children[i].id.replace("0", vlanCounter);
+        children[i].id = children[i].id.replace("0", counter);
     }
 
-    labels = newVLAN.getElementsByTagName("Label");
+    labels = newItem.getElementsByTagName("Label");
     for (i = 0; i < labels.length; i++){
         oldfor = labels[i].getAttribute("for");
-        newfor = oldfor.replace("0", vlanCounter);
+        newfor = oldfor.replace("0", counter);
         labels[i].setAttribute("for", newfor);
-        labels[i].innerText = labels[i].innerText.replace("0", vlanCounter);
+        labels[i].innerText = labels[i].innerText.replace("0", counter);
     }
 
-    newVLAN.addEventListener("mouseenter", sideBarAlignOnHover);
+    newItem.addEventListener("mouseenter", sideBarAlignOnHover);
 
     //need to insert it in the DOM before adding it to validation
-    if (lastHoveredElem != systemContainer){
-        lastHoveredElem.after(newVLAN);
+    if (lastHoveredElem == null || lastHoveredElem == undefined || lastHoveredElem == systemContainer){
+        firstVLAN.after(newItem);
+        console.log("inserted")
     }
     else{
-        firstVLAN.after(newVLAN);
+        lastHoveredElem.after(newItem);
+        console.log("inserted")
     }
 
     // adding the VLAN to the validation collection
     initCheckboxes();
     calcValidationFields();
-
 }
 
+// adds a VLAN, involves setting the ID's of erros and recalculating how many fields need to be validated
 function deleteVLAN(){
     var elem = lastHoveredElem
 
@@ -663,7 +614,6 @@ function ValidateField(element){
 
 // validates all fields in the AllElements table
 function ValidateAll(){
-    console.log("validation run")
     var ableToSubmit = true;
 
     for (i=0; i<allElements.length; i++){
@@ -682,5 +632,3 @@ function ValidateAll(){
 // Functions to be run
 initCheckboxes();
 calcValidationFields();
-
-
