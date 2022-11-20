@@ -1,0 +1,480 @@
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime localtime show-timezone year
+service timestamps log datetime localtime show-timezone year
+service password-encryption
+service sequence-numbers
+service dhcp
+!
+hostname {{ hostname }}
+!
+logging buffered 51200 informational
+no logging console
+!
+aaa new-model
+aaa authentication login default local
+aaa authorization console
+aaa authorization exec default local
+!
+clock timezone ACST 9 30
+!
+ntp server 1.au.pool.ntp.org
+ntp server 2.au.pool.ntp.org
+ntp server 3.au.pool.ntp.org
+!
+ip name-server {{ primary_dns }}
+ip name-server {{ secondary_dns }}
+ip domain name {{ suffix }}
+ip dns server
+!
+ipv6 unicast-routing
+ipv6 cef distributed
+ip cef distributed
+!
+lldp run
+cdp run
+!
+archive
+ exit
+!
+username root privilege 15 secret {{ password }}
+!
+control-plane
+!
+banner motd ^C
+###########################################
+#                                         #
+#            !!! WARNING !!!              #
+#                                         #
+# Access to this device and the network   #
+# it protects is strictly prohibited      #
+# unless you are authorized.              #
+#                                         #
+# If you are unauthorized disconnect now! #
+#                                         #
+###########################################
+^C
+!
+no ip http server
+no ip http secure-server
+!
+crypto key generate rsa modulus 4096
+ip ssh time-out 60
+ip ssh version 2
+!
+policy-map PMAP-Speed-Child
+ class class-default
+  fair-queue
+  exit
+ exit
+policy-map PMAP-Speed-Parent
+ class class-default
+  shape average {{ bps }}
+   service-policy PMAP-Speed-Child
+  exit
+ exit
+!
+ip access-list extended ACL-INFRASTRUCTURE-IN
+ <fill your own ACL in>
+ remark "Port Forwards"
+ {% for pfwd_id, pfwd in port_forwards.items() -%}
+ {% if pfwd["source"] == "any" -%}
+ permit {{ pfwd["protocol"] }} {{ pfwd["source"] }} any eq {{ pfwd["src_port"] }}
+ {% else -%}
+ permit {{ pfwd["protocol"] }} host {{ pfwd["source"] }} any eq {{ pfwd["src_port"] }}
+ {% endif -%}
+ {% endfor -%}
+ deny ip any any
+ exit
+ip access-list extended ACL-SSH-IN
+ permit tcp 192.168.0.0 0.0.0.255 any eq 22
+ permit tcp 172.16.0.0 0.15.255.255 any eq 22
+ permit tcp 10.0.0.0 0.255.255.255 any eq 22
+ exit
+ip access-list extended ACL-NAT
+ {% for vpn_id, vpn in vpns.items() -%}
+ deny ip {{ vpn["local_subnet_addr"] }} {{ vpn["local_subnet_wildcard"] }} {{ vpn["remote_subnet_addr"] }} {{ vpn["remote_subnet_wildcard"] }}
+ {% endfor -%}
+ permit ip 192.168.0.0 0.0.255.255 any
+ permit ip 172.16.0.0 0.15.255.255 any
+ permit ip 10.0.0.0 0.255.255.255 any
+ deny ip any any
+ exit
+ip access-list ACL-VPN_LAN-IN
+ {% for vpn_id, vpn in vpns.items() -%}
+ permit ip {{ vpn["remote_subnet_addr"] }} {{ vpn["remote_subnet_wildcard"] }} {{ vpn["local_subnet_addr"] }} {{ vpn["local_subnet_wildcard"] }}
+ {% endfor -%}
+ deny ip any any
+ exit
+ip access-list ACL-LAN_VPN-IN
+ {% for vpn_id, vpn in vpns.items() -%}
+ permit ip {{ vpn["local_subnet_addr"] }} {{ vpn["local_subnet_wildcard"] }} {{ vpn["remote_subnet_addr"] }} {{ vpn["remote_subnet_wildcard"] }}
+ {% endfor -%}
+ deny ip any any
+ exit
+!
+class-map type inspect match-any CMAP-ALL-PROTOCOLS
+ match protocol tcp
+ match protocol udp
+ match protocol icmp
+ exit
+class-map type inspect match-any CMAP-STD-WAN
+ match access-group name ACL-INFRASTRUCTURE-IN
+ exit
+class-map type inspect match-any CMAP-VPN-LAN
+ match access-group name ACL-VPN_LAN-IN
+ exit
+class-map type inspect match-any CMAP-LAN-VPN
+ match access-group name ACL-LAN_VPN-IN
+ exit
+!
+policy-map type inspect PMAP-LAN-TO-WAN
+ class type inspect CMAP-ALL-PROTOCOLS
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-INSPECT-ALL
+ class type inspect CMAP-ALL-PROTOCOLS
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-WAN-TO-LAN
+ class type inspect CMAP-STD-WAN
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-VPN-TO-LAN
+ class type inspect CMAP-VPN-LAN
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-LAN-TO-VPN
+ class type inspect CMAP-LAN-VPN
+  inspect
+  exit
+ class class-default
+  drop
+  exit
+ exit
+policy-map type inspect PMAP-INTRAZONE
+ class class-default
+  drop
+  exit
+ exit
+!
+zone security LAN
+ exit
+zone security WAN
+ exit
+zone security VPN
+ exit
+zone-pair security ZP-LAN-TO-WAN source LAN destination WAN
+ service-policy type inspect PMAP-LAN-TO-WAN
+ exit
+zone-pair security ZP-WAN-TO-LAN source WAN destination LAN
+ service-policy type inspect PMAP-WAN-TO-LAN
+ exit
+zone-pair security ZP-LAN-TO-LAN source LAN destination LAN
+ service-policy type inspect PMAP-INTRAZONE
+ exit
+zone-pair security ZP-VPN-TO-LAN source VPN destination LAN
+ service-policy type inspect PMAP-VPN-TO-LAN
+ exit
+zone-pair security ZP-LAN-TO-VPN source LAN destination VPN
+ service-policy type inspect PMAP-LAN-TO-VPN
+ exit
+zone-pair security ZP-VPN-TO-VPN source VPN destination VPN
+ service-policy type inspect PMAP-INTRAZONE
+ exit
+zone-pair security ZP-SELF-TO-VPN source self destination VPN
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+zone-pair security ZP-VPN-TO-SELF source VPN destination self
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+zone-pair security ZP-LAN-TO-self source LAN destination self
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+zone-pair security ZP-WAN-TO-SELF source WAN destination self
+ service-policy type inspect PMAP-WAN-TO-LAN
+ exit
+zone-pair security ZP-SELF-TO-WAN source self destination WAN
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+zone-pair security ZP-SELF-TO-LAN source self destination LAN
+ service-policy type inspect PMAP-INSPECT-ALL
+ exit
+!
+{% for vlan_id, vlan in vlans.items() -%}
+interface Vlan{{ vlan_id }}
+ ip address {{ vlan["gateway"] }} {{ vlan["mask"] }}
+ no ipv6 address
+ zone-member security LAN
+ no ip proxy-arp
+ no ip redirects
+ ip virtual-reassembly
+ {% if vlan["helper_enabled"] == True -%}
+ ip helper-address {{ vlan["helper_addr"] }}
+ {% endif -%}
+ ip nat inside
+ ip tcp adjust-mss 1300
+ exit
+{% endfor -%}
+!
+{% for vlan_id, vlan in vlans.items() -%}
+vlan {{ vlan_id }}
+{% endfor -%}
+!
+{% for vlan_id, vlan in vlans.items() -%}
+{% if vlan["dhcpv4_enabled"] == True -%}
+ip dhcp excluded-address {{ vlan["dhcpv4_first"][0] }} {{ vlan["dhcpv4_last"][0] }}
+ip dhcp excluded-address {{ vlan["dhcpv4_first"][1] }} {{ vlan["dhcpv4_last"][1] }}
+{% endif -%}
+{% endfor -%}
+{% for vlan_id, vlan in vlans.items() -%}
+{% if vlan["dhcpv4_enabled"] == True -%}
+ip dhcp pool VLAN{{ vlan_id }}
+ network {{ vlan["network_addr"] }} {{ vlan["mask"] }}
+ dns-server {{ vlan["gateway"] }}
+ default-router {{ vlan["gateway"] }}
+ lease 0 6
+ exit
+{% endif -%}
+{% endfor -%}
+!
+{% if wan_type == "IPoE" -%}
+interface GigabitEthernet0/0/0
+ ip address dhcp
+ no ipv6 address
+ zone-member security WAN
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+ ip virtual-reassembly
+ ip tcp adjust-mss 1460
+ no cdp enable
+ no lldp transmit
+ negotiation auto
+ service-policy output PMAP-Speed-Parent
+ no shut
+ exit
+{% elif wan_type == "Static IP" -%}
+interface GigabitEthernet0/0/0
+ ip address <IP ADDRESS>
+ no ipv6 address
+ zone-member security WAN
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+ ip virtual-reassembly in
+ ip tcp adjust-mss 1460
+ no cdp enable
+ no lldp transmit
+ negotiation auto
+ service-policy output PMAP-Speed-Parent
+ no shut
+ exit
+{% else -%}
+interface Dialer0
+ ip address negotiated
+ no ipv6 address
+ zone-member security WAN
+ no ip redirects
+ no ip proxy-arp
+ ip nat outside
+ ip virtual-reassembly
+ encapsulation ppp
+ dialer pool 1
+ ppp chap callin
+ ppp chap hostname <ISP USER>
+ ppp chap password <ISP PASS>
+ no cdp enable
+ no lldp transmit
+ mtu 1492
+ ip tcp adjust-mss 1452
+ negotiation auto
+ service-policy output PMAP-Speed-Parent
+ no shut
+ exit
+interface GigabitEthernet0/0/0
+ pppoe enable group global
+ pppoe-client dial-pool-number 1
+ no shut
+ exit
+{% endif -%}
+interface GigabitEthernet0/1/0
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+interface GigabitEthernet0/1/1
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+interface GigabitEthernet0/1/2
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+interface GigabitEthernet0/1/3
+ {% if vlans|length > 1 -%}
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ switchport mode trunk
+ switchport trunk allowed vlan all
+ {% else -%}
+ switchport mode access
+ {% for vlan_id, vlan in vlans.items() -%}
+ {% if vlan["native"] == True -%}
+ switchport trunk native vlan {{ vlan_id }}
+ {% endif -%}
+ {% endfor -%}
+ {% endif -%}
+ no shut
+ exit
+!
+{% for vpn_id, vpn in vpns.items() -%}
+crypto ikev2 porposal IKEv2_proposal_{{ vpn_id }}
+ encryption {{ vpn["ike_encryption"] }}
+ integrity {{ vpn["ike_authentication"] }}
+ ! group DH config here
+ exit
+{% endfor -%}
+crypto ikev2 policy IKEv2_policy
+ {% for vpn_id, vpn in vpns.items() -%}
+ proposal IKEv2_proposal_{{ vpn_id }}
+ {% endfor -%}
+ exit
+{% for vpn_id, vpn in vpns.items() -%}
+crypto ikev2 keyring IKEv2_keyring_{{ vpn_id }}
+ peer {{ vpn["remote_ip"] }}
+  address {{ vpn["remote_ip"] }}
+  pre-shared-key {{ vpn["psk"] }}
+  exit
+ exit
+crypto ikev2 profile IKEv2_profile_{{ vpn_id }}
+ match identity remote address {{ vpn["remote_ip"] }} 255.255.255.255
+ authentication local pre-share
+ authentication remote pre-share
+ keyring local IKEv2_keyring_{{ vpn_id }}
+ exit
+crypto ipsec transform-set IPSEC_TS_{{ vpn_id }} {{ vpn["ipsec_encryption"] }} {{ vpn["ipsec_authentication"] }}
+ mode tunnel
+ exit
+crypto ipsec profile IPSEC_profile_{{ vpn_id }}
+ set transform-set IPSEC_TS_{{ vpn_id }}
+ set ikev2-profile IKEv2_profile_{{ vpn_id }}
+ exit
+!
+interface Tunnel{{ vpn_id }}
+ ip address 10.255.{{ vpn_id }}.1 255.255.255.252
+ no ipv6 address
+ ip mtu 1400
+ zone-member security VPN
+ ip tcp adjust-mss 1360
+ {% if wan_type == "PPPoE" -%}
+ tunnel source Dialer0
+ {% else -%}
+ tunnel source GigabitEtherner0/0/0
+ {% endif -%}
+ tunnel mode ipsec ipv4
+ tunnel destination {{ vpn["remote_ip"] }}
+ tunnel protection ipsec profile IPSEC_profile_{{ vpn_id }}
+ no shut
+ exit
+{% endfor -%}
+!
+line con 0
+ exec-timeout 30 0
+ transport preferred none
+ stopbits 1
+ exit
+line vty 0 4
+ access-class ACL-SSH-IN in
+ exec-timeout 30 0
+ privilege level 15
+ logging synchronous
+ transport input ssh
+ exit
+!
+{% for vpn_id, vpn in vpns.items() -%}
+ip route {{ vpn["remote_subnet_addr"] }} {{ vpn["remote_subnet_mask"] }} Tunnel{{ vpn_id }}
+{% endfor -%}
+ip route 0.0.0.0 0.0.0.0 dhcp 128
+!
+no ip nat service sip tcp port 5060
+no ip nat service sip udp port 5060
+no ip nat service rtsp udp
+no ip nat service rtsp tcp
+!
+{% if wan_type == "PPPoE" -%}
+{% for pfwd_id, pfwd in port_forwards.items() -%}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface Dialer0 {{ pfwd["src_port"] }}
+{% endfor -%}
+ip nat inside source list ACL-NAT interface Dialer0 overload
+{% else -%}
+{% for pfwd_id, pfwd in port_forwards.items() -%}
+ip nat inside source static {{ pfwd["protocol"] }} {{ pfwd["destination"] }} {{ pfwd["dst_port"] }} interface GigabitEthernet0/0/0 {{ pfwd["src_port"] }}
+{% endfor -%}
+ip nat inside source list ACL-NAT interface GigabitEthernet0/0/0 overload
+{% endif -%}
+!
+end
