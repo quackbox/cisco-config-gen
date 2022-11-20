@@ -3,17 +3,19 @@
 // declaring constants, most of these are divs/containers or buttons to be referenced later
 const form = document.getElementById("configForm");
 const addVLANButton = document.getElementById("addvlan");
-const addPFButton = document.getElementById("addPF")
+const addPFButton = document.getElementById("addPF");
+const addVPNButon = document.getElementById("addVPN");
 const showOptionsButton = document.getElementById("additems");
 const deleteVLANButton = document.getElementById("deleteitem");
 const systemContainer = document.getElementById("System");
 const firstVLAN = document.getElementById("vlan1");
 const sideBar = document.getElementById("sidebar");
-const sideBarOptions = document.getElementById("sidebaroptions")
+const sideBarOptions = document.getElementById("sidebaroptions");
 const minimum = 4; // used for regex validation
 const maximum = 15;
 const optionalPF = document.getElementById("optionalPF");
 const vlanDuplicate = document.querySelector("#optionalvlan");
+const optionalVPN = document.getElementById("optionalVPN")
 const numberRegex = /(\d+)/;
 
 // table/object to hold the respective classes' error messages
@@ -26,7 +28,9 @@ const errMsgs = [
         portNo: "Must be between or equal to 1 and 65353",
         ipv4altered: "Must be a valid IP address or blank (which results in any)",
         suffix: "Must enter a valid domain name",
-        bps: "Must enter a valid number",
+        bps: "Must be between or equal to 500000 and 1000000",
+        lifetime: "Must be between or equal to 1 and 86,400",
+        any: "Cannot be blank",
     }
 ]
 
@@ -42,6 +46,7 @@ var allElements; // will be the combination of newtable and texttable once they'
 var lastHoveredElem; // used for sideBar QoL purposes
 var vlanCounter = 1;
 var PFCounter = 0;
+var VPNCounter = 0;
 
 // styling
 sideBar.style.top = "120px";
@@ -52,11 +57,15 @@ sideBarOptions.top = "120px";
 // adding event listeners
 // safer to use the ()=>{} when passing paramters, otherwise it runs the function inside on compilation/interpreation without the click
 addVLANButton.addEventListener("click", ()=>{
-    addItem("Vlan")
+    addItem("Vlan");
 });
 addPFButton.addEventListener("click", ()=>{
-    addItem("PF")
+    addItem("PF");
 });
+addVPNButon.addEventListener("click",  ()=>{
+    console.log("added");
+    addItem("VPN");
+})
 showOptionsButton.addEventListener("click", showSideBarOptions);
 deleteVLANButton.addEventListener("click", deleteVLAN);
 systemContainer.addEventListener("mouseenter", sideBarAlignOnHover);
@@ -187,6 +196,9 @@ function addImportElement(type, elementTable){
     else if (type == "PF"){
         counter = PFCounter;
     }
+    else if (type == "VPN"){
+        counter = VPNCounter;
+    }
 
     var numbertable = elementTable[0][0].match(/(\d+)/);
     var givenID = numbertable[0]
@@ -196,6 +208,9 @@ function addImportElement(type, elementTable){
         newel.checked = true;
         enableHelper(newel);
     }
+    else if (elementTable[0][1] == "Enable"){
+        el.checked == true;
+    }
     else{
         newel.value = elementTable[0][1];
     }
@@ -204,6 +219,7 @@ function addImportElement(type, elementTable){
 function ImportData(array){
     var currentVlanIDSet = 1;
     var currentPFIDSet = 0;
+    var currentVPNIDSet = 0;
 
     for (i = 0; i< array.length; i++){
         var idandvalue = [];
@@ -215,6 +231,9 @@ function ImportData(array){
             if (el.id.includes("dhcpEN")){
                 el.checked = true;
                 enableHelper(el);
+            }
+            else if (idandvalue[0][1] == "Enable"){
+                el.checked == true;
             }
             else{
                 el.value = idandvalue[0][1];
@@ -244,6 +263,16 @@ function ImportData(array){
                     addImportElement("vlan", idandvalue)
                 }
             }
+            else if(idandvalue[0][0][0].includes("i")){
+                if (idandvalue[0][0][1] != currentVPNIDSet){
+                    currentVPNIDSet = idandvalue[0][0][1];
+                    addItem("VPN");
+                    addImportElement("VPN", idandvalue)
+                }
+                else{
+                    addImportElement("VPN", idandvalue)
+                }
+            }
         }
     }
     ValidateAll();
@@ -252,25 +281,32 @@ function ImportData(array){
 function initCheckboxes(){
     checkboxes = document.querySelectorAll('[type="checkbox"]');
     checkboxArray = Array.from(checkboxes);
+    dhcpArray = [];
     filter = [];
     
-    for (i=0;i<checkboxArray.length;i++){
-        if (checkboxArray[i].id.includes('0')){
-            filter.push(checkboxArray[i])
+    for (i = 0; i < checkboxArray.length;i++){
+        if (checkboxArray[i].id.includes('dhcpEN')){
+            dhcpArray.push(checkboxArray[i])
+        }
+    }
+
+    for (i=0;i<dhcpArray.length;i++){
+        if (dhcpArray[i].id.includes('0')){
+            filter.push(dhcpArray[i])
         }
     }
 
     for (i =0; i<filter.length; i++){
-        for (j=0;j<checkboxArray.length;j++){
-            if (filter[i] == checkboxArray[j])
-            checkboxArray.splice(j, 1);
+        for (j=0;j<dhcpArray.length;j++){
+            if (filter[i] == dhcpArray[j])
+            dhcpArray.splice(j, 1);
         }
     }
 
-    for (i=0; i< checkboxArray.length; i++){
-        checkboxArray[i].removeEventListener("click", enableHelper)
-        checkboxArray[i].addEventListener("click", enableHelper)
-        enableHelper(checkboxArray[i]);
+    for (i=0; i< dhcpArray.length; i++){
+        dhcpArray[i].removeEventListener("click", enableHelper)
+        dhcpArray[i].addEventListener("click", enableHelper)
+        enableHelper(dhcpArray[i]);
     }
 }
 
@@ -356,6 +392,7 @@ function calcValidationFields(){
 
 function addItem(type){
     console.log("run");
+    console.log(type);
     var counter;
     var duplicate;
     var headingTitle;
@@ -370,13 +407,22 @@ function addItem(type){
         desiredID = "vlan0title";
         counter = vlanCounter;
     }
-    else if (type = "PF"){
+    else if (type == "PF"){
         PFCounter++;
         duplicate = optionalPF;
-        headingTitle = "#PortForwarding0Title"
-        desiredHeadingText = "Port Forwarding 0 Information"
-        desiredID = "PortForwarding0Title"
+        headingTitle = "#PortForwarding0Title";
+        desiredHeadingText = "Port Forwarding 0 Information";
+        desiredID = "PortForwarding0Title";
         counter = PFCounter;
+    }
+    else if (type == "VPN"){
+        console.log("correct type find");
+        VPNCounter++;
+        duplicate = optionalVPN;
+        headingTitle = "#VPN0Title";
+        desiredHeadingText = "VPN 0 Information";
+        desiredID = "VPN0Title";
+        counter = VPNCounter;
     }
 
     // update the counter, add a new item and adjust the headings accordingly
@@ -386,6 +432,8 @@ function addItem(type){
     newItem.classList.add("optional");
 
     heading = newItem.querySelector(headingTitle);
+    console.log(headingTitle);
+    console.log(newItem);
     heading.id = desiredID.replace("0", counter)
     heading.innerText = desiredHeadingText.replace("0", counter)
 
@@ -514,6 +562,16 @@ function MarkFine(element){
     errDiv.classList.add("hide");
 }
 
+function ValidateLength(string, length){
+    var match = false;
+    // length is a property of string, not a function, so no length(), only length
+    // unlike arrays, where length is a function and therefore array.length() is required
+    if (string.length >= length){
+        match = true;
+    }
+    return match;
+}
+
 // validates whether the input is a number, and between min and max
 function ValidateRange(number, minimum, maximum){
     var match = false;
@@ -578,6 +636,14 @@ function ValidateField(element){
     else if (type == "bps"){
         match = ValidateRange(newelement.value, 5000000, 1000000000);
         err = errMsgs[0].bps;
+    }
+    else if(type == "lifetime"){
+        match = ValidateRange(newelement.value, 1, 86400);
+        err = errMsgs[0].lifetime;
+    }
+    else if (type == "any"){
+        match = ValidateLength(newelement.value, 1);
+        err = errMsgs[0].any;
     }
     else if(type == "ipv4altered"){
         regex = IPRegex;

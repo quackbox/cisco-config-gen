@@ -19,6 +19,7 @@
         <div class = "sidebaroptions" id ="sidebaroptions">
             <button type = button class = "sidebarbutton" id = "addvlan"> ADD vlan! </button>
             <button type = button class = "sidebarbutton" id = "addPF"> ADD port forwarding! </button>
+            <button type = button class = "sidebarbutton" id = "addVPN"> ADD VPN! </button>
         </div>
         <div class="topcontainer">
             <div class="topbar">
@@ -218,7 +219,7 @@
 
                      </div>
 
-                     <div class = "VPN" id = "optionalVPN"> 
+                     <div class = "hide" id = "optionalVPN"> 
                         <h1 id = "VPN0Title"> VPN 0 Information </h1>
                         <h2> IKE Configuration</h2>
 
@@ -229,7 +230,7 @@
                         </div>
 
                         <label for="i0PreSharedKey" id="i0PreSharedKeyLabel"> Pre-shared Key </label>
-                        <input type="text" class="text" placeholder="Enter key" id="i0PreSharedKey" name="i0PreSharedKey">
+                        <input type="text" class="any text" placeholder="Enter key" id="i0PreSharedKey" name="i0PreSharedKey">
                         <div class="hide err"id="i0PreSharedKeyerr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
@@ -266,8 +267,7 @@
                         </div>
 
                         <label for="i0KeyLifetime" id ="i0KeyLifetimeLabel">Key Lifetime (seconds):</label>
-                        <input type="text" class="lifetime text" placeholder="Enter external port number" id="i0KeyLifetime" name="i0KeyLifetime">
-                        <!--1-65353-->
+                        <input type="text" class="lifetime text" placeholder="Enter key lifetime" id="i0KeyLifetime" name="i0KeyLifetime">
                         <div class="hide err"id="i0KeyLifetimeerr">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
@@ -365,7 +365,7 @@
 
                         
                         <label for="i0KeyLifetime2" id ="i0KeyLifetime2Label">Key Lifetime (seconds):</label>
-                        <input type="text" class="lifetime text" placeholder="Enter external port number" id="i0KeyLifetime2" name="i0KeyLifetime2">
+                        <input type="text" class="lifetime text" placeholder="Enter key lifetime" id="i0KeyLifetime2" name="i0KeyLifetime2">
                         <!--1-86,400-->
                         <div class="hide err"id="i0KeyLifetime2err">
                             <span class = "msg"> You got this wrong loooooool </span>
