@@ -57,14 +57,13 @@ sideBarOptions.top = "120px";
 // adding event listeners
 // safer to use the ()=>{} when passing paramters, otherwise it runs the function inside on compilation/interpreation without the click
 addVLANButton.addEventListener("click", ()=>{
-    addItem("Vlan");
+    addItem("Vlan", true);
 });
 addPFButton.addEventListener("click", ()=>{
-    addItem("PF");
+    addItem("PF", true);
 });
 addVPNButon.addEventListener("click",  ()=>{
-    console.log("added");
-    addItem("VPN");
+    addItem("VPN", true);
 })
 showOptionsButton.addEventListener("click", showSideBarOptions);
 deleteVLANButton.addEventListener("click", deleteVLAN);
@@ -209,9 +208,14 @@ function addImportElement(type, elementTable){
         enableHelper(newel);
     }
     else if (elementTable[0][1] == "Enable"){
-        el.checked == true;
+        console.log(elementTable[0][0]);
+        el.checked = true;
     }
     else{
+        if (elementTable[0][0].includes("PreSharedKey")){
+            console.log("shared key found");
+            
+        }
         newel.value = elementTable[0][1];
     }
 }
@@ -220,20 +224,24 @@ function ImportData(array){
     var currentVlanIDSet = 1;
     var currentPFIDSet = 0;
     var currentVPNIDSet = 0;
+    console.log(array);
 
     for (i = 0; i< array.length; i++){
+        console.log(array.length);
         var idandvalue = [];
         string = array[i];
+        console.log(string);
         idandvalue.push(string.split(":"));
         //string.split stores the array, in a big array, so access the [0] index
         el = document.getElementById(idandvalue[0][0]);
+        console.log(idandvalue[0][0])
         if (el != null){
             if (el.id.includes("dhcpEN")){
                 el.checked = true;
                 enableHelper(el);
             }
             else if (idandvalue[0][1] == "Enable"){
-                el.checked == true;
+                el.checked = true;
             }
             else{
                 el.value = idandvalue[0][1];
@@ -246,7 +254,7 @@ function ImportData(array){
             if(idandvalue[0][0][0].includes("p")){
                 if (idandvalue[0][0][1] != currentPFIDSet){
                     currentPFIDSet = idandvalue[0][0][1];
-                    addItem("PF");
+                    addItem("PF", false);
                     addImportElement("PF", idandvalue);
                 }
                 else{
@@ -256,7 +264,7 @@ function ImportData(array){
             else if (idandvalue[0][0][0].includes("v")){
                 if (idandvalue[0][0][1] != currentVlanIDSet){
                     currentVlanIDSet = idandvalue[0][0][1];
-                    addItem("Vlan");
+                    addItem("Vlan", false);
                     addImportElement("vlan", idandvalue)
                 }
                 else{
@@ -264,9 +272,11 @@ function ImportData(array){
                 }
             }
             else if(idandvalue[0][0][0].includes("i")){
+                console.log(idandvalue[0][0]);
                 if (idandvalue[0][0][1] != currentVPNIDSet){
                     currentVPNIDSet = idandvalue[0][0][1];
-                    addItem("VPN");
+                    //HelloWorld();
+                    addItem("VPN", false);
                     addImportElement("VPN", idandvalue)
                 }
                 else{
@@ -275,7 +285,13 @@ function ImportData(array){
             }
         }
     }
+    calcValidationFields();
+    initCheckboxes();
     ValidateAll();
+}
+
+function HelloWorld(){
+    console.log("hello world");
 }
 
 function initCheckboxes(){
@@ -390,9 +406,7 @@ function calcValidationFields(){
     }
 }
 
-function addItem(type){
-    console.log("run");
-    console.log(type);
+function addItem(type, validate){
     var counter;
     var duplicate;
     var headingTitle;
@@ -402,7 +416,7 @@ function addItem(type){
     if (type == "Vlan"){
         vlanCounter++;
         duplicate = vlanDuplicate;
-        headingTitle = "#vlan0title"
+        headingTitle = "#vlan0title";
         desiredHeadingText = "Tagged VLAN";
         desiredID = "vlan0title";
         counter = vlanCounter;
@@ -416,7 +430,6 @@ function addItem(type){
         counter = PFCounter;
     }
     else if (type == "VPN"){
-        console.log("correct type find");
         VPNCounter++;
         duplicate = optionalVPN;
         headingTitle = "#VPN0Title";
@@ -425,19 +438,18 @@ function addItem(type){
         counter = VPNCounter;
     }
 
+
     // update the counter, add a new item and adjust the headings accordingly
-    newItem = duplicate.cloneNode(true)
-    newItem.classList.remove("hide")
+    newItem = duplicate.cloneNode(true);
+    newItem.classList.remove("hide");
     newItem.classList.add(type);
     newItem.classList.add("optional");
 
     heading = newItem.querySelector(headingTitle);
-    console.log(headingTitle);
-    console.log(newItem);
-    heading.id = desiredID.replace("0", counter)
-    heading.innerText = desiredHeadingText.replace("0", counter)
+    heading.id = desiredID.replace("0", counter);
+    heading.innerText = desiredHeadingText.replace("0", counter);
 
-    //
+
     var children = newItem.children;
     for (i = 0; i < children.length; i++){
 
@@ -455,22 +467,42 @@ function addItem(type){
         labels[i].setAttribute("for", newfor);
         labels[i].innerText = labels[i].innerText.replace("0", counter);
     }
+    var DHs = newItem.getElementsByClassName("Diffie");
+    var DHLabels = newItem.getElementsByClassName("DiffieLabel");
+
+    for (i = 0; i < DHs.length; i++){
+        oldfor = DHLabels[i].getAttribute("for");
+        newfor = oldfor.replace("0", counter);
+        DHLabels[i].setAttribute("for", newfor);
+        DHLabels[i].innerText = DHLabels[i].innerText.replace("0", counter);
+
+
+        if (DHs[i].name != null){
+            DHs[i].name = DHs[i].name.replace("0", counter);
+        }
+
+        DHs[i].id = DHs[i].id.replace("0", counter);
+
+    }
 
     newItem.addEventListener("mouseenter", sideBarAlignOnHover);
 
     //need to insert it in the DOM before adding it to validation
     if (lastHoveredElem == null || lastHoveredElem == undefined || lastHoveredElem == systemContainer){
         firstVLAN.after(newItem);
-        console.log("inserted")
     }
     else{
         lastHoveredElem.after(newItem);
-        console.log("inserted")
+    }
+
+    if (validate == true){
+        initCheckboxes();
+        calcValidationFields();
     }
 
     // adding the VLAN to the validation collection
-    initCheckboxes();
-    calcValidationFields();
+    //initCheckboxes();
+    //calcValidationFields();
 }
 
 // adds a VLAN, involves setting the ID's of erros and recalculating how many fields need to be validated
