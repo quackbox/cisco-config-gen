@@ -237,14 +237,15 @@
 
                         <label for="i0Encryption" id ="i0EncryptionLabel"> Select encryption: </label>
                         <select name="i0Encryption" id="i0Encryption">
-                        <option value="AES-128">AES-128</option>
-                        <option value="AES-256">AES-256</option>
+                        <option value="aes-cbc-128">AES-CBC-128</option>
+                        <option value="aes-cbc-256">AES-CBC-256</option>
                         </select>
 
                         <label for="i0Authentication" id ="i0AuthenticationLabel"> Select authentication:</label>
                         <select name="i0Authentication" id="i0Authentication">
-                        <option value="SHA-256">SHA-256</option>
-                        <option value="SHA-512">SHA-512</option>
+                        <option value="sha-1">SHA1</option>
+                        <option value="sha-256">SHA256</option>
+                        <option value="sha-512">SHA512</option>
                         </select>
 
                         <p> Select DH group: </p>
@@ -398,18 +399,18 @@
 
                         <label for="i0Encryption2" id ="i0Encryption2Label"> Select encryption: </label>
                         <select name="i0Encryption2" id="i0Encryption2">
-                        <option value="AES-128">AES-128</option>
-                        <option value="AES-256">AES-256</option>
+                        <option value="esp-192-aes">ESP-192-AES</option>
+                        <option value="esp-256-aes">ESP-256-AES</option>
                         </select>
 
                         <label for="i0Authentication2" id ="i0Authentication2Label"> Select authentication:</label>
                         <select name="i0Authentication2" id="i0Authentication2">
-                        <option value="SHA-256">SHA-256</option>
-                        <option value="SHA-512">SHA-512</option>
+                        <option value="esp-sha256-hmac">ESP-SHA256-HMAC</option>
+                        <option value="esp-sha512-hmac">ESP-SHA512-HMAC</option>
                         </select>
 
-                        <label for="i0ERD" id="i0ERDLabel"> Enable Replay Detection </label>
-                        <input type="checkbox" name="i0ERD" id ="i0ERD" value="Enable">
+                        <!--<label for="i0ERD" id="i0ERDLabel"> Enable Replay Detection </label>
+                        <input type="checkbox" name="i0ERD" id ="i0ERD" value="Enable">-->
 
                         <label for="i0PFS" id="i0PFSLabel"> Enable Perfect Forward Secrecy (PFS) </label>
                         <input type="checkbox" name="i0PFS" id ="i0PFS" value="Enable">

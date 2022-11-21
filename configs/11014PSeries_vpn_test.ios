@@ -100,13 +100,13 @@ ip access-list extended ACL-NAT
  permit ip 10.0.0.0 0.255.255.255 any
  deny ip any any
  exit
-ip access-list ACL-VPN_LAN-IN
+ip access-list extended ACL-VPN_LAN-IN
  {% for vpn_id, vpn in vpns.items() -%}
  permit ip {{ vpn["remote_subnet_addr"] }} {{ vpn["remote_subnet_wildcard"] }} {{ vpn["local_subnet_addr"] }} {{ vpn["local_subnet_wildcard"] }}
  {% endfor -%}
  deny ip any any
  exit
-ip access-list ACL-LAN_VPN-IN
+ip access-list extended ACL-LAN_VPN-IN
  {% for vpn_id, vpn in vpns.items() -%}
  permit ip {{ vpn["local_subnet_addr"] }} {{ vpn["local_subnet_wildcard"] }} {{ vpn["remote_subnet_addr"] }} {{ vpn["remote_subnet_wildcard"] }}
  {% endfor -%}
@@ -297,11 +297,10 @@ interface Dialer0
  ip virtual-reassembly
  encapsulation ppp
  dialer pool 1
- ppp chap callin
- ppp chap hostname <ISP USER>
- ppp chap password <ISP PASS>
+ ppp authentication chap callin
+ ppp authentication chap hostname <ISP USER>
+ ppp authentication chap password <ISP PASS>
  no cdp enable
- no lldp transmit
  mtu 1492
  ip tcp adjust-mss 1452
  negotiation auto
@@ -311,6 +310,8 @@ interface Dialer0
 interface GigabitEthernet0/0/0
  pppoe enable group global
  pppoe-client dial-pool-number 1
+ no cdp enable
+ no lldp transmit
  no shut
  exit
 {% endif -%}
@@ -392,7 +393,7 @@ interface GigabitEthernet0/1/3
  exit
 !
 {% for vpn_id, vpn in vpns.items() -%}
-crypto ikev2 porposal IKEv2_proposal_{{ vpn_id }}
+crypto ikev2 proposal IKEv2_proposal_{{ vpn_id }}
  encryption {{ vpn["ike_encryption"] }}
  integrity {{ vpn["ike_authentication"] }}
  ! group DH config here
