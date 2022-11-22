@@ -83,7 +83,9 @@ form.addEventListener("submit", function(event){
 
         for (const [key, value] of formData){
 
-            if (key.includes('0')){
+            console.log(key);
+
+            if (key[1] == ('0')){
                 // formData.delete(key) causes holes? I think?
                 newarray[i] = key;
                 i++;
@@ -156,7 +158,8 @@ const downloadFile = () => {
 
     for (const [key, value] of formData){
 
-        if (key.includes('0')){
+        if (key[1] == ('0')){
+            console.log(key)
             // formData.delete(key) causes holes? I think?
             newarray[i] = key;
             i++;
@@ -174,6 +177,7 @@ const downloadFile = () => {
     for (const [key, value] of formData){
         filearray.push(key + ":" + value)
     }
+
 
     const content = filearray;
     const file = new Blob([content], { type: 'text/plain' });
@@ -200,7 +204,10 @@ function addImportElement(type, elementTable){
     }
 
     var numbertable = elementTable[0][0].match(/(\d+)/);
+    console.log(numbertable)
     var givenID = numbertable[0]
+    console.log(givenID)
+
     var newid = elementTable[0][0].replace(givenID, counter);
     var newel = document.getElementById(newid);
     if (newel.id.includes("dhcpEN")){
@@ -465,7 +472,10 @@ function addItem(type, validate){
         oldfor = labels[i].getAttribute("for");
         newfor = oldfor.replace("0", counter);
         labels[i].setAttribute("for", newfor);
-        labels[i].innerText = labels[i].innerText.replace("0", counter);
+        if (labels[i].length > 2){
+            // ensure it doesn't change the numbers for DH groups
+            labels[i].innerText = labels[i].innerText.replace("0", counter);
+        }
     }
     var DHs = newItem.getElementsByClassName("Diffie");
     var DHLabels = newItem.getElementsByClassName("DiffieLabel");
@@ -474,11 +484,12 @@ function addItem(type, validate){
         oldfor = DHLabels[i].getAttribute("for");
         newfor = oldfor.replace("0", counter);
         DHLabels[i].setAttribute("for", newfor);
-        DHLabels[i].innerText = DHLabels[i].innerText.replace("0", counter);
 
 
         if (DHs[i].name != null){
+            console.log(DHs[i].name);
             DHs[i].name = DHs[i].name.replace("0", counter);
+            console.log(DHs[i].name);
         }
 
         DHs[i].id = DHs[i].id.replace("0", counter);
