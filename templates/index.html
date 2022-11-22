@@ -69,6 +69,7 @@
                         <!--<option value="110Series">1100 Series</option>-->
                         <option value="11014PSeries" selected>C1101-4P</option>
                         <option value="897VASeries">897VA</option>
+                        <option value="11014PSeries_vpn_test">11014PSeries_vpn_test</option>
                         </select>
 
                         
@@ -237,14 +238,15 @@
 
                         <label for="i0Encryption" id ="i0EncryptionLabel"> Select encryption: </label>
                         <select name="i0Encryption" id="i0Encryption">
-                        <option value="AES-128">AES-128</option>
-                        <option value="AES-256">AES-256</option>
+                        <option value="aes-cbc-128">AES-CBC-128</option>
+                        <option value="aes-cbc-256">AES-CBC-256</option>
                         </select>
 
                         <label for="i0Authentication" id ="i0AuthenticationLabel"> Select authentication:</label>
                         <select name="i0Authentication" id="i0Authentication">
-                        <option value="SHA-256">SHA-256</option>
-                        <option value="SHA-512">SHA-512</option>
+                        <option value="sha-1">SHA1</option>
+                        <option value="sha-256">SHA256</option>
+                        <option value="sha-512">SHA512</option>
                         </select>
 
                         <p> Select DH group: </p>
@@ -344,13 +346,13 @@
 
                         <h2> IPSec Information </h2>
 
-                        <label for="i0lipv4" id="i0lipv4Label"> Local IPv4 Address</label>
+                        <label for="i0lipv4" id="i0lipv4Label"> Local IPv4 Network Address</label>
                         <input type="text" class="ipv4 text" placeholder="Enter IPv4 address" id="i0lipv4" name="i0lipv4">
                         <div class="hide err"id="i0lipv4err">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="i0lipv4Pre" id ="i0lipv4PreLabel">Choose a prefix for local address:</label>
+                        <label for="i0lipv4Pre" id ="i0lipv4PreLabel">Choose a prefix for local subnet:</label>
                         <select name="i0lipv4Pre" id="i0lipv4Pre">
                         <option value="/31">/31</option>
                         <option value="/30">/30</option>
@@ -370,13 +372,13 @@
                         <option value="/16">/16</option>
                         </select>
 
-                        <label for="i0ripv4" id="i0ripv4Label"> Remote IPv4 Address</label>
+                        <label for="i0ripv4" id="i0ripv4Label"> Remote IPv4 Network Address</label>
                         <input type="text" class="ipv4 text" placeholder="Enter IPv4 address" id="i0ripv4" name="i0ripv4">
                         <div class="hide err"id="i0ripv4err">
                             <span class = "msg"> You got this wrong loooooool </span>
                         </div>
 
-                        <label for="i0ripv4Pre" id ="i0ripv4PreLabel">Choose a prefix for remote address:</label>
+                        <label for="i0ripv4Pre" id ="i0ripv4PreLabel">Choose a prefix for remote subnet:</label>
                         <select name="i0ripv4Pre" id="i0ripv4Pre">
                         <option value="/31">/31</option>
                         <option value="/30">/30</option>
@@ -398,21 +400,21 @@
 
                         <label for="i0Encryption2" id ="i0Encryption2Label"> Select encryption: </label>
                         <select name="i0Encryption2" id="i0Encryption2">
-                        <option value="AES-128">AES-128</option>
-                        <option value="AES-256">AES-256</option>
+                        <option value="esp-192-aes">ESP-192-AES</option>
+                        <option value="esp-256-aes">ESP-256-AES</option>
                         </select>
 
                         <label for="i0Authentication2" id ="i0Authentication2Label"> Select authentication:</label>
                         <select name="i0Authentication2" id="i0Authentication2">
-                        <option value="SHA-256">SHA-256</option>
-                        <option value="SHA-512">SHA-512</option>
+                        <option value="esp-sha256-hmac">ESP-SHA256-HMAC</option>
+                        <option value="esp-sha512-hmac">ESP-SHA512-HMAC</option>
                         </select>
 
-                        <label for="i0ERD" id="i0ERDLabel"> Enable Replay Detection </label>
+                        <!--<label for="i0ERD" id="i0ERDLabel"> Enable Replay Detection </label>
                         <input type="checkbox" name="i0ERD" id ="i0ERD" value="Enable">
 
                         <label for="i0PFS" id="i0PFSLabel"> Enable Perfect Forward Secrecy (PFS) </label>
-                        <input type="checkbox" name="i0PFS" id ="i0PFS" value="Enable">
+                        <input type="checkbox" name="i0PFS" id ="i0PFS" value="Enable">-->
 
                         <p> Select DH group: </p>
 
